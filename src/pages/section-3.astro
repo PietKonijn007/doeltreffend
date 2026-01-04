@@ -21,14 +21,13 @@ try {
   <Hero 
     title="Section 3"
     subtitle="Architecture Portfolio - Part 3"
-    
     height="large"
   />
   
   <section class="py-24 px-6 max-w-7xl mx-auto">
     <div class="mb-16" data-aos="fade-up">
-      <h2 class="text-3xl md:text-4xl font-bold mb-4">Section Overview</h2>
-      <p class="text-white/70 text-lg max-w-3xl">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4" data-i18n="sections.overview">Section Overview</h2>
+      <p class="text-white/70 text-lg max-w-3xl" data-i18n="sections.section3Description">
         Section 3 explores detailed architectural concepts and spatial planning strategies.
       </p>
     </div>
@@ -59,6 +58,7 @@ try {
               href={`/Material/Section 3/${file}`}
               target="_blank"
               class="text-amber-400 text-sm hover:text-amber-300 transition-colors"
+              data-i18n="sections.viewFile"
             >
               View File →
             </a>
@@ -72,9 +72,11 @@ try {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
           </svg>
         </div>
-        <h3 class="text-2xl font-bold mb-4">No Content Yet</h3>
+        <h3 class="text-2xl font-bold mb-4" data-i18n="sections.noContent">No Content Yet</h3>
         <p class="text-white/60 max-w-md mx-auto">
-          Add your images, documents, and materials to <code class="bg-slate-700 px-2 py-1 rounded">/Material/Section 3/</code> to see them here.
+          <span data-i18n="sections.addMaterials">Add your images, documents, and materials to</span>
+          <code class="bg-slate-700 px-2 py-1 rounded">/Material/Section 3/</code>
+          <span data-i18n="sections.toSeeHere">to see them here.</span>
         </p>
       </div>
     )}
@@ -83,11 +85,40 @@ try {
   <section class="py-12 px-6 border-t border-white/10">
     <div class="max-w-7xl mx-auto flex justify-between items-center">
       <a href="/section-2" class="text-white/70 hover:text-amber-400 transition-colors">
-        ← Section 2
+        ← <span data-i18n="nav.section2">Section 2</span>
       </a>
       <a href="/section-4" class="text-white/70 hover:text-amber-400 transition-colors">
-        Section 4 →
+        <span data-i18n="nav.section4">Section 4</span> →
       </a>
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  import { getPreferredLanguage, t } from '../i18n/utils';
+  
+  // Update all translations on the page
+  function updateTranslations() {
+    const currentLang = getPreferredLanguage();
+    
+    // Update text content
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+      const key = (el as HTMLElement).dataset.i18n;
+      if (key) {
+        el.textContent = t(key, currentLang);
+      }
+    });
+    
+    // Update Hero title and subtitle
+    const heroTitle = document.querySelector('.hero-section h1');
+    const heroSubtitle = document.querySelector('.hero-section p');
+    if (heroTitle) heroTitle.textContent = t('sections.section3Title', currentLang);
+    if (heroSubtitle) heroSubtitle.textContent = t('sections.section3Subtitle', currentLang);
+  }
+  
+  // Initialize translations
+  updateTranslations();
+  
+  // Listen for language changes
+  window.addEventListener('languagechange', updateTranslations);
+</script>
