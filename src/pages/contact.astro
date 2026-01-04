@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Navigation from '../components/Navigation.astro';
 import Hero from '../components/Hero.astro';
 
 const students = [
@@ -12,6 +13,8 @@ const students = [
 ---
 
 <BaseLayout title="Contact Us - Doeltreffend">
+  <Navigation />
+  
   <Hero 
     title="Contact Us" 
     subtitle="Get in touch with our team"
