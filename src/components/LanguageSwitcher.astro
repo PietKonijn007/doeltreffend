@@ -1,0 +1,79 @@
+---
+// Language Switcher Component
+---
+
+<div class="language-switcher flex items-center gap-2">
+  <button
+    id="lang-en"
+    class="lang-btn px-3 py-1 rounded text-sm font-medium transition-all duration-300"
+    data-lang="en"
+  >
+    EN
+  </button>
+  <span class="text-white/30">|</span>
+  <button
+    id="lang-nl"
+    class="lang-btn px-3 py-1 rounded text-sm font-medium transition-all duration-300"
+    data-lang="nl"
+  >
+    NL
+  </button>
+</div>
+
+<script>
+  import { getPreferredLanguage, setLanguage } from '../i18n/utils';
+  
+  function updateButtons() {
+    const currentLang = getPreferredLanguage();
+    const buttons = document.querySelectorAll('.lang-btn');
+    
+    buttons.forEach((btn) => {
+      const lang = (btn as HTMLElement).dataset.lang;
+      if (lang === currentLang) {
+        btn.classList.add('bg-amber-500', 'text-white');
+        btn.classList.remove('text-white/60', 'hover:text-white');
+      } else {
+        btn.classList.remove('bg-amber-500', 'text-white');
+        btn.classList.add('text-white/60', 'hover:text-white');
+      }
+    });
+  }
+  
+  function setupLanguageSwitcher() {
+    const enBtn = document.getElementById('lang-en');
+    const nlBtn = document.getElementById('lang-nl');
+    
+    // Set initial state
+    updateButtons();
+    
+    // Add click handlers
+    enBtn?.addEventListener('click', () => {
+      setLanguage('en');
+      updateButtons();
+      window.location.reload(); // Reload to apply translations
+    });
+    
+    nlBtn?.addEventListener('click', () => {
+      setLanguage('nl');
+      updateButtons();
+      window.location.reload(); // Reload to apply translations
+    });
+  }
+  
+  // Initialize on page load
+  setupLanguageSwitcher();
+  
+  // Reinitialize after navigation (for Astro's view transitions if enabled)
+  document.addEventListener('astro:page-load', setupLanguageSwitcher);
+</script>
+
+<style>
+  .lang-btn {
+    cursor: pointer;
+    user-select: none;
+  }
+  
+  .lang-btn:active {
+    transform: scale(0.95);
+  }
+</style>

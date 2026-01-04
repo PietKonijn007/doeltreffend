@@ -1,12 +1,14 @@
 ---
+import LanguageSwitcher from './LanguageSwitcher.astro';
+
 const navItems = [
-  { name: 'Home', href: '/' },
-  { name: 'Section 1', href: '/section-1' },
-  { name: 'Section 2', href: '/section-2' },
-  { name: 'Section 3', href: '/section-3' },
-  { name: 'Section 4', href: '/section-4' },
-  { name: 'Section 5', href: '/section-5' },
-  { name: 'Contact', href: '/contact' },
+  { name: 'Home', href: '/', key: 'nav.home' },
+  { name: 'Section 1', href: '/section-1', key: 'nav.section1' },
+  { name: 'Section 2', href: '/section-2', key: 'nav.section2' },
+  { name: 'Section 3', href: '/section-3', key: 'nav.section3' },
+  { name: 'Section 4', href: '/section-4', key: 'nav.section4' },
+  { name: 'Section 5', href: '/section-5', key: 'nav.section5' },
+  { name: 'Contact', href: '/contact', key: 'nav.contact' },
 ];
 
 const currentPath = Astro.url.pathname;
@@ -21,17 +23,19 @@ const currentPath = Astro.url.pathname;
       </a>
       
       <!-- Desktop Navigation -->
-      <div class="hidden md:flex items-center space-x-8">
+      <div class="hidden md:flex items-center space-x-6">
         {navItems.map((item) => (
           <a
             href={item.href}
-            class={`text-sm font-medium transition-colors duration-300 hover:text-amber-400 ${
+            class={`nav-link text-sm font-medium transition-colors duration-300 hover:text-amber-400 ${
               currentPath === item.href ? 'text-amber-400' : 'text-white/80'
             }`}
+            data-i18n={item.key}
           >
             {item.name}
           </a>
         ))}
+        <LanguageSwitcher />
       </div>
       
       <!-- Mobile Menu Button -->
@@ -63,6 +67,8 @@ const currentPath = Astro.url.pathname;
 </nav>
 
 <script>
+  import { getPreferredLanguage, t } from '../i18n/utils';
+  
   // Mobile menu toggle
   const menuButton = document.getElementById('mobile-menu-button');
   const mobileMenu = document.getElementById('mobile-menu');
@@ -70,4 +76,23 @@ const currentPath = Astro.url.pathname;
   menuButton?.addEventListener('click', () => {
     mobileMenu?.classList.toggle('hidden');
   });
+  
+  // Update navigation translations
+  function updateNavTranslations() {
+    const currentLang = getPreferredLanguage();
+    const navLinks = document.querySelectorAll('[data-i18n]');
+    
+    navLinks.forEach((link) => {
+      const key = (link as HTMLElement).dataset.i18n;
+      if (key) {
+        link.textContent = t(key, currentLang);
+      }
+    });
+  }
+  
+  // Initialize translations on page load
+  updateNavTranslations();
+  
+  // Listen for language changes
+  window.addEventListener('languagechange', updateNavTranslations);
 </script>
