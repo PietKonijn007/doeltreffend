@@ -24,7 +24,7 @@ const heightClass = {
 >
   <!-- Background Image with Parallax Effect (loaded dynamically from S3) -->
   <div 
-    class="absolute inset-0 bg-cover bg-center bg-fixed parallax-bg bg-slate-900"
+    class="absolute inset-0 bg-cover bg-center parallax-bg bg-slate-900"
     id="hero-background"
   >
     <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80"></div>
@@ -144,5 +144,13 @@ const heightClass = {
   .parallax-bg {
     will-change: transform;
     transition: background-image 0.5s ease-in-out;
+    /* Enable parallax only on desktop (768px and above) */
+    background-attachment: scroll;
+  }
+  
+  @media (min-width: 768px) {
+    .parallax-bg {
+      background-attachment: fixed;
+    }
   }
 </style>
