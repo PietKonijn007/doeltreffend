@@ -4,7 +4,6 @@
 
 <div class="language-switcher flex items-center gap-2">
   <button
-    id="lang-en"
     class="lang-btn px-3 py-1 rounded text-sm font-medium transition-all duration-300"
     data-lang="en"
   >
@@ -12,7 +11,6 @@
   </button>
   <span class="text-white/30">|</span>
   <button
-    id="lang-nl"
     class="lang-btn px-3 py-1 rounded text-sm font-medium transition-all duration-300"
     data-lang="nl"
   >
@@ -20,7 +18,6 @@
   </button>
   <span class="text-white/30">|</span>
   <button
-    id="lang-ko"
     class="lang-btn px-3 py-1 rounded text-sm font-medium transition-all duration-300"
     data-lang="ko"
   >
@@ -48,30 +45,22 @@
   }
   
   function setupLanguageSwitcher() {
-    const enBtn = document.getElementById('lang-en');
-    const nlBtn = document.getElementById('lang-nl');
-    const koBtn = document.getElementById('lang-ko');
+    // Use class-based selection to handle multiple instances (desktop + mobile)
+    const langButtons = document.querySelectorAll('.lang-btn');
     
     // Set initial state
     updateButtons();
     
-    // Add click handlers
-    enBtn?.addEventListener('click', () => {
-      setLanguage('en');
-      updateButtons();
-      window.location.reload(); // Reload to apply translations
-    });
-    
-    nlBtn?.addEventListener('click', () => {
-      setLanguage('nl');
-      updateButtons();
-      window.location.reload(); // Reload to apply translations
-    });
-    
-    koBtn?.addEventListener('click', () => {
-      setLanguage('ko');
-      updateButtons();
-      window.location.reload(); // Reload to apply translations
+    // Add click handlers to all language buttons
+    langButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const lang = (btn as HTMLElement).dataset.lang;
+        if (lang) {
+          setLanguage(lang as 'en' | 'nl' | 'ko');
+          updateButtons();
+          window.location.reload(); // Reload to apply translations
+        }
+      });
     });
   }
   
