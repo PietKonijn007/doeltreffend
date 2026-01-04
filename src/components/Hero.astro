@@ -62,6 +62,7 @@ const heightClass = {
 <script>
   let backgrounds: string[] = [];
   let currentIndex = 0;
+  let imagesPreloaded = false;
   
   // Fetch and load all backgrounds from S3
   async function loadBackgrounds() {
@@ -80,14 +81,30 @@ const heightClass = {
         // Set first background immediately
         setBackground(0);
         
-        // Start rotation if there are multiple backgrounds
+        // Preload remaining images in background for smooth transitions
         if (backgrounds.length > 1) {
-          setInterval(rotateBackground, 5000); // Rotate every 5 seconds
+          preloadBackgrounds();
+          
+          // Start rotation after a short delay to allow first image to load
+          setTimeout(() => {
+            setInterval(rotateBackground, 5000); // Rotate every 5 seconds
+          }, 2000);
         }
       }
     } catch (error) {
       console.error('Error loading backgrounds:', error);
     }
+  }
+  
+  // Preload all background images
+  function preloadBackgrounds() {
+    backgrounds.forEach((url, index) => {
+      if (index > 0) { // Skip first one as it's already loading
+        const img = new Image();
+        img.src = url;
+      }
+    });
+    imagesPreloaded = true;
   }
   
   // Set background with smooth transition
