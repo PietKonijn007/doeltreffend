@@ -10,28 +10,28 @@ const sections = [
     title: 'Nodes',
     description: 'Pictures of nodes for structural analysis and strength',
     link: '/section-1',
-    image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800&q=80' // Fallback
   },
   {
     number: 2,
     title: 'Process Bundle',
     description: 'The bundle that shows the full process of the design presented',
     link: '/section-2',
-    image: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&q=80' // Fallback
   },
   {
     number: 3,
     title: 'Photo Map',
     description: 'Explore our photo map',
     link: '/section-3',
-    image: 'https://images.unsplash.com/photo-1479839672679-a46483c0e7c8?w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1479839672679-a46483c0e7c8?w=800&q=80' // Fallback
   },
   {
     number: 4,
     title: 'Photos',
     description: 'View our photo collection',
     link: '/section-4',
-    image: 'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?w=800&q=80' // Fallback
   }
 ];
 ---
@@ -109,6 +109,36 @@ const sections = [
 <script>
   import { getPreferredLanguage, t } from '../i18n/utils';
   
+  // Load section card images from S3
+  async function loadSectionImages() {
+    try {
+      const response = await fetch('/api/section-cards');
+      if (!response.ok) {
+        console.error('Failed to load section card images');
+        return;
+      }
+      
+      const data = await response.json();
+      
+      if (data.images) {
+        // Update each section card image
+        Object.entries(data.images).forEach(([sectionNum, imageUrl]) => {
+          const cards = document.querySelectorAll('.group.relative');
+          const cardIndex = parseInt(sectionNum) - 1;
+          
+          if (cards[cardIndex]) {
+            const img = cards[cardIndex].querySelector('img');
+            if (img && typeof imageUrl === 'string') {
+              img.src = imageUrl;
+            }
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error loading section card images:', error);
+    }
+  }
+  
   // Update all translations on the page
   function updateTranslations() {
     const currentLang = getPreferredLanguage();
@@ -130,6 +160,9 @@ const sections = [
   
   // Initialize translations
   updateTranslations();
+  
+  // Load images from S3
+  loadSectionImages();
   
   // Listen for language changes
   window.addEventListener('languagechange', updateTranslations);
