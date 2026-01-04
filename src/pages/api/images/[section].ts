@@ -32,7 +32,7 @@ export const GET: APIRoute = async ({ params }) => {
     // List objects in the section folder
     const listCommand = new ListObjectsV2Command({
       Bucket: BUCKET_NAME,
-      Prefix: `Section ${section}/`,
+      Prefix: `section-${section}/`,
     });
 
     const listResponse = await s3Client.send(listCommand);
