@@ -42,12 +42,9 @@ export const GET: APIRoute = async () => {
       item => item.Key && !item.Key.endsWith('/')
     );
 
-    // Select a random background
-    const randomBackground = backgrounds[Math.floor(Math.random() * backgrounds.length)];
-    
-    if (!randomBackground.Key) {
+    if (backgrounds.length === 0) {
       return new Response(
-        JSON.stringify({ error: 'No valid background found' }),
+        JSON.stringify({ error: 'No valid backgrounds found' }),
         {
           status: 404,
           headers: { 'Content-Type': 'application/json' },
@@ -55,22 +52,29 @@ export const GET: APIRoute = async () => {
       );
     }
 
-    // Generate presigned URL for the selected background
-    const command = new GetObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: randomBackground.Key,
-    });
-    
-    // Generate presigned URL valid for 1 hour
-    const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
-    
-    const filename = randomBackground.Key.split('/').pop() || '';
+    // Generate presigned URLs for all backgrounds
+    const backgroundUrls = await Promise.all(
+      backgrounds.map(async (bg) => {
+        const command = new GetObjectCommand({
+          Bucket: BUCKET_NAME,
+          Key: bg.Key,
+        });
+        
+        // Generate presigned URL valid for 1 hour
+        const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+        const filename = bg.Key?.split('/').pop() || '';
+        
+        return {
+          url,
+          filename,
+          size: bg.Size,
+        };
+      })
+    );
 
     return new Response(
       JSON.stringify({ 
-        url,
-        filename,
-        size: randomBackground.Size,
+        backgrounds: backgroundUrls,
       }),
       {
         status: 200,

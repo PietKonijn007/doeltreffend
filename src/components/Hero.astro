@@ -60,28 +60,52 @@ const heightClass = {
 </section>
 
 <script>
-  // Fetch and load background from S3
-  async function loadBackground() {
+  let backgrounds: string[] = [];
+  let currentIndex = 0;
+  
+  // Fetch and load all backgrounds from S3
+  async function loadBackgrounds() {
     try {
       const response = await fetch('/api/background');
       if (!response.ok) {
-        console.error('Failed to load background');
+        console.error('Failed to load backgrounds');
         return;
       }
       
       const data = await response.json();
-      const heroBackground = document.getElementById('hero-background');
       
-      if (heroBackground && data.url) {
-        heroBackground.style.backgroundImage = `url('${data.url}')`;
+      if (data.backgrounds && data.backgrounds.length > 0) {
+        backgrounds = data.backgrounds.map((bg: any) => bg.url);
+        
+        // Set first background immediately
+        setBackground(0);
+        
+        // Start rotation if there are multiple backgrounds
+        if (backgrounds.length > 1) {
+          setInterval(rotateBackground, 5000); // Rotate every 5 seconds
+        }
       }
     } catch (error) {
-      console.error('Error loading background:', error);
+      console.error('Error loading backgrounds:', error);
     }
   }
   
-  // Load background when page loads
-  loadBackground();
+  // Set background with smooth transition
+  function setBackground(index: number) {
+    const heroBackground = document.getElementById('hero-background');
+    if (heroBackground && backgrounds[index]) {
+      heroBackground.style.backgroundImage = `url('${backgrounds[index]}')`;
+    }
+  }
+  
+  // Rotate to next background
+  function rotateBackground() {
+    currentIndex = (currentIndex + 1) % backgrounds.length;
+    setBackground(currentIndex);
+  }
+  
+  // Load backgrounds when page loads
+  loadBackgrounds();
 </script>
 
 <style>
