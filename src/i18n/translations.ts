@@ -13,10 +13,14 @@ export const translations = {
     // Home page
     home: {
       title: 'Doeltreffend',
-      subtitle: 'KU Leuven Bachelor Ontwerp - Group Defense',
-      welcome: 'Welcome to our Portfolio',
-      description: 'Explore our architecture projects and design philosophy through this comprehensive portfolio.',
-      exploreProjects: 'Explore Projects',
+      subtitle: 'KU Leuven Bachelor Ontwerp - Architecture Portfolio',
+      exploreButton: 'Explore Sections',
+      projectSectionsTitle: 'Project Sections',
+      projectSectionsDescription: 'Navigate through our comprehensive architecture portfolio, organized into five distinct sections',
+      aboutTitle: 'About This Project',
+      aboutDescription1: 'This portfolio showcases our architectural journey through the KU Leuven Bachelor Ontwerp program. Each section represents a crucial phase in our design process, from initial concepts to final presentations.',
+      aboutDescription2: 'Materials for each section are organized in the respective folders and will be displayed as you add content.',
+      footer: '© 2026 Doeltreffend - KU Leuven Architecture Portfolio',
     },
     // Contact page
     contact: {
@@ -73,10 +77,14 @@ export const translations = {
     // Home pagina
     home: {
       title: 'Doeltreffend',
-      subtitle: 'KU Leuven Bachelor Ontwerp - Groepsverdediging',
-      welcome: 'Welkom bij ons Portfolio',
-      description: 'Verken onze architectuurprojecten en ontwerpfilosofie via dit uitgebreide portfolio.',
-      exploreProjects: 'Projecten Verkennen',
+      subtitle: 'KU Leuven Bachelor Ontwerp - Architectuur Portfolio',
+      exploreButton: 'Secties Verkennen',
+      projectSectionsTitle: 'Project Secties',
+      projectSectionsDescription: 'Navigeer door ons uitgebreid architectuurportfolio, georganiseerd in vijf verschillende secties',
+      aboutTitle: 'Over Dit Project',
+      aboutDescription1: 'Dit portfolio toont onze architecturale reis door het KU Leuven Bachelor Ontwerp programma. Elke sectie vertegenwoordigt een cruciale fase in ons ontwerpproces, van initiële concepten tot eindpresentaties.',
+      aboutDescription2: 'Materialen voor elke sectie zijn georganiseerd in de respectievelijke mappen en worden weergegeven wanneer u inhoud toevoegt.',
+      footer: '© 2026 Doeltreffend - KU Leuven Architectuur Portfolio',
     },
     // Contact pagina
     contact: {

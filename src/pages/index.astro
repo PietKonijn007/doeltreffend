@@ -55,6 +55,7 @@ const sections = [
       <a 
         href="#sections" 
         class="inline-block px-8 py-4 bg-amber-500 hover:bg-amber-400 text-black font-semibold rounded-lg transition-all duration-300 transform hover:scale-105"
+        data-i18n="home.exploreButton"
       >
         Explore Sections
       </a>
@@ -64,8 +65,8 @@ const sections = [
   <!-- Sections Grid -->
   <section id="sections" class="py-24 px-6 max-w-7xl mx-auto">
     <div class="text-center mb-16" data-aos="fade-up">
-      <h2 class="text-4xl md:text-5xl font-bold mb-4">Project Sections</h2>
-      <p class="text-white/70 text-lg max-w-2xl mx-auto">
+      <h2 class="text-4xl md:text-5xl font-bold mb-4" data-i18n="home.projectSectionsTitle">Project Sections</h2>
+      <p class="text-white/70 text-lg max-w-2xl mx-auto" data-i18n="home.projectSectionsDescription">
         Navigate through our comprehensive architecture portfolio, organized into five distinct sections
       </p>
     </div>
@@ -87,12 +88,12 @@ const sections = [
   <!-- About Section -->
   <section class="py-24 px-6 bg-black/40">
     <div class="max-w-4xl mx-auto text-center" data-aos="fade-up">
-      <h2 class="text-3xl md:text-4xl font-bold mb-6">About This Project</h2>
-      <p class="text-white/80 text-lg leading-relaxed mb-8">
+      <h2 class="text-3xl md:text-4xl font-bold mb-6" data-i18n="home.aboutTitle">About This Project</h2>
+      <p class="text-white/80 text-lg leading-relaxed mb-8" data-i18n="home.aboutDescription1">
         This portfolio showcases our architectural journey through the KU Leuven Bachelor Ontwerp program. 
         Each section represents a crucial phase in our design process, from initial concepts to final presentations.
       </p>
-      <p class="text-white/70 text-base">
+      <p class="text-white/70 text-base" data-i18n="home.aboutDescription2">
         Materials for each section are organized in the respective folders and will be displayed as you add content.
       </p>
     </div>
@@ -101,7 +102,7 @@ const sections = [
   <!-- Footer -->
   <footer class="py-12 px-6 border-t border-white/10">
     <div class="max-w-7xl mx-auto text-center">
-      <p class="text-white/60 text-sm">
+      <p class="text-white/60 text-sm" data-i18n="home.footer">
         &copy; 2026 Doeltreffend - KU Leuven Architecture Portfolio
       </p>
       <p class="text-white/40 text-xs mt-2">
@@ -110,3 +111,32 @@ const sections = [
     </div>
   </footer>
 </BaseLayout>
+
+<script>
+  import { getPreferredLanguage, t } from '../i18n/utils';
+  
+  // Update all translations on the page
+  function updateTranslations() {
+    const currentLang = getPreferredLanguage();
+    
+    // Update text content
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+      const key = (el as HTMLElement).dataset.i18n;
+      if (key) {
+        el.textContent = t(key, currentLang);
+      }
+    });
+    
+    // Update Hero title and subtitle
+    const heroTitle = document.querySelector('.hero-section h1');
+    const heroSubtitle = document.querySelector('.hero-section p');
+    if (heroTitle) heroTitle.textContent = t('home.title', currentLang);
+    if (heroSubtitle) heroSubtitle.textContent = t('home.subtitle', currentLang);
+  }
+  
+  // Initialize translations
+  updateTranslations();
+  
+  // Listen for language changes
+  window.addEventListener('languagechange', updateTranslations);
+</script>
