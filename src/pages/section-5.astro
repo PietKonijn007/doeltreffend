@@ -1,0 +1,93 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navigation from '../components/Navigation.astro';
+import Hero from '../components/Hero.astro';
+import { readdir } from 'node:fs/promises';
+import { join } from 'node:path';
+
+let files: string[] = [];
+try {
+  const materialPath = join(process.cwd(), '..', 'Material', 'Section 5');
+  files = await readdir(materialPath);
+  files = files.filter(file => !file.startsWith('.'));
+} catch (error) {
+  console.log('No files found in Material/Section 5');
+}
+---
+
+<BaseLayout title="Section 5 - Doeltreffend">
+  <Navigation />
+  
+  <Hero 
+    title="Section 5"
+    subtitle="Architecture Portfolio - Part 5"
+    backgroundImage="https://images.unsplash.com/photo-1486718448742-163732cd1544?w=1920&q=80"
+    height="large"
+  />
+  
+  <section class="py-24 px-6 max-w-7xl mx-auto">
+    <div class="mb-16" data-aos="fade-up">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">Section Overview</h2>
+      <p class="text-white/70 text-lg max-w-3xl">
+        Section 5 showcases the final realization and project outcomes.
+      </p>
+    </div>
+    
+    {files.length > 0 ? (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {files.map((file, index) => (
+          <div 
+            class="bg-slate-800/50 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-amber-400/50 transition-all duration-300"
+            data-aos="fade-up"
+            data-aos-delay={index * 100}
+          >
+            <div class="flex items-center justify-center h-48 bg-slate-700/50 rounded-lg mb-4">
+              {file.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                <img 
+                  src={`/Material/Section 5/${file}`} 
+                  alt={file}
+                  class="w-full h-full object-cover rounded-lg"
+                />
+              ) : (
+                <svg class="w-16 h-16 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                </svg>
+              )}
+            </div>
+            <h3 class="font-semibold text-white mb-2 truncate">{file}</h3>
+            <a 
+              href={`/Material/Section 5/${file}`}
+              target="_blank"
+              class="text-amber-400 text-sm hover:text-amber-300 transition-colors"
+            >
+              View File →
+            </a>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="text-center py-20" data-aos="fade-up">
+        <div class="mb-8">
+          <svg class="w-24 h-24 mx-auto text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+          </svg>
+        </div>
+        <h3 class="text-2xl font-bold mb-4">No Content Yet</h3>
+        <p class="text-white/60 max-w-md mx-auto">
+          Add your images, documents, and materials to <code class="bg-slate-700 px-2 py-1 rounded">/Material/Section 5/</code> to see them here.
+        </p>
+      </div>
+    )}
+  </section>
+  
+  <section class="py-12 px-6 border-t border-white/10">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <a href="/section-4" class="text-white/70 hover:text-amber-400 transition-colors">
+        ← Section 4
+      </a>
+      <a href="/" class="text-white/70 hover:text-amber-400 transition-colors">
+        Back to Home
+      </a>
+    </div>
+  </section>
+</BaseLayout>

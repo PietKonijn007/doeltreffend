@@ -1,0 +1,61 @@
+---
+interface Props {
+  image: string;
+  title: string;
+  description?: string;
+  link?: string;
+}
+
+const { image, title, description, link } = Astro.props;
+---
+
+<div 
+  class="group relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border border-white/10 hover:border-amber-400/50 transition-all duration-500"
+  data-aos="fade-up"
+>
+  {link ? (
+    <a href={link} class="block">
+      <div class="relative overflow-hidden aspect-[4/3]">
+        <img 
+          src={image} 
+          alt={title}
+          class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+          loading="lazy"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      </div>
+      <div class="p-6">
+        <h3 class="text-xl font-serif font-bold mb-2 group-hover:text-amber-400 transition-colors duration-300">
+          {title}
+        </h3>
+        {description && (
+          <p class="text-white/70 text-sm line-clamp-2">
+            {description}
+          </p>
+        )}
+      </div>
+    </a>
+  ) : (
+    <>
+      <div class="relative overflow-hidden aspect-[4/3]">
+        <img 
+          src={image} 
+          alt={title}
+          class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out cursor-pointer"
+          loading="lazy"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      </div>
+      <div class="p-6">
+        <h3 class="text-xl font-serif font-bold mb-2">
+          {title}
+        </h3>
+        {description && (
+          <p class="text-white/70 text-sm line-clamp-2">
+            {description}
+          </p>
+        )}
+      </div>
+    </>
+  )}
+</div>
