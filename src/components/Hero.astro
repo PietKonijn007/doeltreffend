@@ -2,14 +2,12 @@
 interface Props {
   title: string;
   subtitle?: string;
-  backgroundImage?: string;
   height?: 'full' | 'large' | 'medium';
 }
 
 const { 
   title, 
   subtitle, 
-  backgroundImage = '/hero-placeholder.jpg',
   height = 'full' 
 } = Astro.props;
 
@@ -21,13 +19,13 @@ const heightClass = {
 ---
 
 <section 
-  class={`relative ${heightClass} flex items-center justify-center overflow-hidden`}
+  class={`relative ${heightClass} flex items-center justify-center overflow-hidden hero-section`}
   data-aos="fade-in"
 >
-  <!-- Background Image with Parallax Effect -->
+  <!-- Background Image with Parallax Effect (loaded dynamically from S3) -->
   <div 
-    class="absolute inset-0 bg-cover bg-center bg-fixed parallax-bg"
-    style={`background-image: url('${backgroundImage}');`}
+    class="absolute inset-0 bg-cover bg-center bg-fixed parallax-bg bg-slate-900"
+    id="hero-background"
   >
     <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80"></div>
   </div>
@@ -61,6 +59,31 @@ const heightClass = {
   </div>
 </section>
 
+<script>
+  // Fetch and load background from S3
+  async function loadBackground() {
+    try {
+      const response = await fetch('/api/background');
+      if (!response.ok) {
+        console.error('Failed to load background');
+        return;
+      }
+      
+      const data = await response.json();
+      const heroBackground = document.getElementById('hero-background');
+      
+      if (heroBackground && data.url) {
+        heroBackground.style.backgroundImage = `url('${data.url}')`;
+      }
+    } catch (error) {
+      console.error('Error loading background:', error);
+    }
+  }
+  
+  // Load background when page loads
+  loadBackground();
+</script>
+
 <style>
   @keyframes fade-in {
     from {
@@ -79,5 +102,6 @@ const heightClass = {
   
   .parallax-bg {
     will-change: transform;
+    transition: background-image 0.5s ease-in-out;
   }
 </style>
