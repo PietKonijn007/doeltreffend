@@ -18,6 +18,14 @@
   >
     NL
   </button>
+  <span class="text-white/30">|</span>
+  <button
+    id="lang-ko"
+    class="lang-btn px-3 py-1 rounded text-sm font-medium transition-all duration-300"
+    data-lang="ko"
+  >
+    KO
+  </button>
 </div>
 
 <script>
@@ -42,6 +50,7 @@
   function setupLanguageSwitcher() {
     const enBtn = document.getElementById('lang-en');
     const nlBtn = document.getElementById('lang-nl');
+    const koBtn = document.getElementById('lang-ko');
     
     // Set initial state
     updateButtons();
@@ -55,6 +64,12 @@
     
     nlBtn?.addEventListener('click', () => {
       setLanguage('nl');
+      updateButtons();
+      window.location.reload(); // Reload to apply translations
+    });
+    
+    koBtn?.addEventListener('click', () => {
+      setLanguage('ko');
       updateButtons();
       window.location.reload(); // Reload to apply translations
     });

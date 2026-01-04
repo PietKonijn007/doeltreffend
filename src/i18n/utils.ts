@@ -6,7 +6,7 @@ export function getPreferredLanguage(): Language {
   
   // Check localStorage first
   const stored = localStorage.getItem('language') as Language | null;
-  if (stored && (stored === 'en' || stored === 'nl')) {
+  if (stored && (stored === 'en' || stored === 'nl' || stored === 'ko')) {
     return stored;
   }
   
@@ -14,6 +14,9 @@ export function getPreferredLanguage(): Language {
   const browserLang = navigator.language.toLowerCase();
   if (browserLang.startsWith('nl')) {
     return 'nl';
+  }
+  if (browserLang.startsWith('ko')) {
+    return 'ko';
   }
   
   return 'en'; // Default to English

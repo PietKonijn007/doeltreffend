@@ -58,10 +58,14 @@ const currentPath = Astro.url.pathname;
           class={`block text-sm font-medium transition-colors duration-300 hover:text-amber-400 ${
             currentPath === item.href ? 'text-amber-400' : 'text-white/80'
           }`}
+          data-i18n={item.key}
         >
           {item.name}
         </a>
       ))}
+      <div class="pt-3 border-t border-white/10">
+        <LanguageSwitcher />
+      </div>
     </div>
   </div>
 </nav>
