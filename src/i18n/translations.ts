@@ -11,7 +11,7 @@ export const translations = {
     },
     // Home page
     home: {
-      title: 'Doeltreffend',
+      title: 'Doel - Scharnierpunt',
       subtitle: 'KU Leuven Bachelor Ontwerp - Architecture Portfolio',
       exploreButton: 'Explore Sections',
       projectSectionsTitle: 'Project Sections',
@@ -19,7 +19,7 @@ export const translations = {
       aboutTitle: 'About This Project',
       aboutDescription1: 'This portfolio showcases our architectural journey through the KU Leuven Bachelor Ontwerp program. Each section represents a crucial phase in our design process, from initial concepts to final presentations.',
       aboutDescription2: 'Materials for each section are organized in the respective folders and will be displayed as you add content.',
-      footer: '© 2026 Doeltreffend - KU Leuven Architecture Portfolio',
+      footer: '© 2026 Doel - Scharnierpunt - KU Leuven Architecture Portfolio',
     },
     // Contact page
     contact: {
@@ -89,7 +89,7 @@ export const translations = {
     },
     // Home pagina
     home: {
-      title: 'Doeltreffend',
+      title: 'Doel - Scharnierpunt',
       subtitle: 'KU Leuven Bachelor Ontwerp - Architectuur Portfolio',
       exploreButton: 'Secties Verkennen',
       projectSectionsTitle: 'Project Secties',
@@ -97,7 +97,7 @@ export const translations = {
       aboutTitle: 'Over Dit Project',
       aboutDescription1: 'Dit portfolio toont onze architecturale reis door het KU Leuven Bachelor Ontwerp programma. Elke sectie vertegenwoordigt een cruciale fase in ons ontwerpproces, van initiële concepten tot eindpresentaties.',
       aboutDescription2: 'Materialen voor elke sectie zijn georganiseerd in de respectievelijke mappen en worden weergegeven wanneer u inhoud toevoegt.',
-      footer: '© 2026 Doeltreffend - KU Leuven Architectuur Portfolio',
+      footer: '© 2026 Doel - Scharnierpunt - KU Leuven Architectuur Portfolio',
     },
     // Contact pagina
     contact: {
@@ -167,7 +167,7 @@ export const translations = {
     },
     // 홈 페이지
     home: {
-      title: 'Doeltreffend',
+      title: 'Doel - Scharnierpunt',
       subtitle: 'KU Leuven 학사 디자인 - 건축 포트폴리오',
       exploreButton: '섹션 탐색',
       projectSectionsTitle: '프로젝트 섹션',
@@ -175,7 +175,7 @@ export const translations = {
       aboutTitle: '프로젝트 소개',
       aboutDescription1: '이 포트폴리오는 KU Leuven 학사 디자인 프로그램을 통한 건축 여정을 보여줍니다. 각 섹션은 초기 개념부터 최종 발표까지 디자인 프로세스의 중요한 단계를 나타냅니다.',
       aboutDescription2: '각 섹션의 자료는 해당 폴더에 정리되어 있으며 콘텐츠를 추가하면 표시됩니다.',
-      footer: '© 2026 Doeltreffend - KU Leuven 건축 포트폴리오',
+      footer: '© 2026 Doel - Scharnierpunt - KU Leuven 건축 포트폴리오',
     },
     // 연락처 페이지
     contact: {
