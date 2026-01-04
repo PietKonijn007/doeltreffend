@@ -19,7 +19,7 @@ export const POST: APIRoute = async ({ request }) => {
     // Send email using Resend
     const { data, error } = await resend.emails.send({
       from: 'onboarding@resend.dev', // This is the default Resend domain for testing
-      to: 'hofkensjurgen@gmail.com',
+      to: 'jurgen@hofkensvermeulen.be', // Must use your verified Resend email in test mode
       subject: `Contact Form: ${subject}`,
       html: `
         <h2>New Contact Form Submission</h2>
