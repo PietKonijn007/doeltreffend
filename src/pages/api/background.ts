@@ -75,12 +75,15 @@ export const GET: APIRoute = async () => {
     return new Response(
       JSON.stringify({ 
         backgrounds: backgroundUrls,
+        timestamp: new Date().toISOString(),
       }),
       {
         status: 200,
         headers: { 
           'Content-Type': 'application/json',
-          'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
+          'Cache-Control': 'no-cache, no-store, must-revalidate', // No caching during testing
+          'Pragma': 'no-cache',
+          'Expires': '0',
         },
       }
     );
