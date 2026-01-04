@@ -6,13 +6,13 @@ import Hero from '../components/Hero.astro';
 // Images will be loaded client-side from S3 via API
 ---
 
-<BaseLayout title="Section 2 - Doeltreffend">
+<BaseLayout title="Proces Bundel - Doeltreffend">
   <Navigation />
   
   <!-- Hero Section -->
   <Hero 
-    title="Section 2"
-    subtitle="Architecture Portfolio - Part 1"
+    title="Process Bundle"
+    subtitle="The full process of the design presented"
     height="large"
   />
   
@@ -156,11 +156,11 @@ import Hero from '../components/Hero.astro';
   <!-- Navigation to other sections -->
   <section class="py-12 px-6 border-t border-white/10">
     <div class="max-w-7xl mx-auto flex justify-between items-center">
-      <a href="/" class="text-white/70 hover:text-amber-400 transition-colors" data-i18n="sections.backToHome">
-        ← Back to Home
+      <a href="/section-1" class="text-white/70 hover:text-amber-400 transition-colors">
+        ← <span data-i18n="nav.section1">Nodes</span>
       </a>
-      <a href="/section-2" class="text-white/70 hover:text-amber-400 transition-colors">
-        <span data-i18n="nav.section2">Section 2</span> →
+      <a href="/section-3" class="text-white/70 hover:text-amber-400 transition-colors">
+        <span data-i18n="nav.section3">Photo Map</span> →
       </a>
     </div>
   </section>
