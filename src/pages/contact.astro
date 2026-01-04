@@ -9,6 +9,7 @@ const students = [
   { name: 'Sophia Anderson', role: 'roles.designer' },
   { name: 'Oliver Brown', role: 'roles.contentWriter' },
   { name: 'Ava Williams', role: 'roles.researcher' },
+  { name: 'Noah Davis', role: 'roles.analyst' },
 ];
 ---
 
@@ -27,12 +28,16 @@ const students = [
         <h2 class="text-4xl font-serif font-bold text-center mb-4" data-i18n="contact.ourTeam">Our Team</h2>
         <p class="text-center text-white/70 mb-12" data-i18n="contact.teamDescription">Meet the students who made this project possible</p>
         
-        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8">
-          {students.map((student) => (
-            <div class="text-center group">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="team-grid">
+          {students.map((student, index) => (
+            <div class="text-center group" data-student-index={index}>
               <div class="relative mb-4 overflow-hidden rounded-full w-32 h-32 mx-auto bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-105">
-                <!-- Placeholder avatar with initials -->
-                <span class="text-4xl font-bold text-white">
+                <img 
+                  class="student-photo w-full h-full object-cover opacity-0 transition-opacity duration-500"
+                  data-student-index={index}
+                  alt={student.name}
+                />
+                <span class="student-initials text-4xl font-bold text-white absolute inset-0 flex items-center justify-center">
                   {student.name.split(' ').map(n => n[0]).join('')}
                 </span>
               </div>
@@ -155,6 +160,44 @@ const students = [
   
   // Initialize translations
   updateTranslations();
+
+  // Load student pictures from S3
+  async function loadStudentPictures() {
+    try {
+      const response = await fetch('/api/students');
+      if (!response.ok) {
+        console.error('Failed to load student pictures');
+        return;
+      }
+      
+      const data = await response.json();
+      
+      if (data.students && data.students.length > 0) {
+        // Apply photos to student cards
+        data.students.forEach((student: any, index: number) => {
+          const photo = document.querySelector(`.student-photo[data-student-index="${index}"]`) as HTMLImageElement;
+          const initials = photo?.parentElement?.querySelector('.student-initials');
+          
+          if (photo && student.url) {
+            photo.src = student.url;
+            photo.onload = () => {
+              photo.classList.remove('opacity-0');
+              photo.classList.add('opacity-100');
+              // Hide initials when photo loads
+              if (initials) {
+                initials.classList.add('opacity-0');
+              }
+            };
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error loading student pictures:', error);
+    }
+  }
+  
+  // Load pictures on page load
+  loadStudentPictures();
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
