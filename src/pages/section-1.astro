@@ -3,7 +3,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Navigation from '../components/Navigation.astro';
 import Hero from '../components/Hero.astro';
 
-// Images will be loaded client-side from S3 via API
+// 9 nodes with their details
+const nodes = [
+  { id: 1, key: 'node1' },
+  { id: 2, key: 'node2' },
+  { id: 3, key: 'node3' },
+  { id: 4, key: 'node4' },
+  { id: 5, key: 'node5' },
+  { id: 6, key: 'node6' },
+  { id: 7, key: 'node7' },
+  { id: 8, key: 'node8' },
+  { id: 9, key: 'node9' },
+];
 ---
 
 <BaseLayout title="Knopen - Doel - Scharnierpunt">
@@ -16,12 +27,12 @@ import Hero from '../components/Hero.astro';
     height="large"
   />
   
-  <!-- Content Section -->
+  <!-- Nodes Grid Section -->
   <section class="py-24 px-6 max-w-7xl mx-auto">
     <div class="mb-16" data-aos="fade-up">
-      <h2 class="text-3xl md:text-4xl font-bold mb-4" data-i18n="sections.overview">Section Overview</h2>
+      <h2 class="text-3xl md:text-4xl font-bold mb-4" data-i18n="sections.overview">Overview</h2>
       <p class="text-white/70 text-lg max-w-3xl" data-i18n="sections.section1Description">
-        Welcome to Section 1 of our architecture portfolio. This section contains fundamental concepts and initial design explorations.
+        Pictures of nodes for structural analysis and strength.
       </p>
     </div>
     
@@ -31,36 +42,115 @@ import Hero from '../components/Hero.astro';
       <p class="mt-4 text-white/70" data-i18n="sections.loading">Loading images...</p>
     </div>
 
-    <!-- Images container (populated by JavaScript) -->
-    <div id="images-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
-
-    <!-- No content placeholder -->
-    <div id="no-content" class="hidden text-center py-20" data-aos="fade-up">
-      <div class="mb-8">
-        <svg class="w-24 h-24 mx-auto text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-        </svg>
-      </div>
-      <h3 class="text-2xl font-bold mb-4" data-i18n="sections.noContent">No Content Yet</h3>
-      <p class="text-white/60 max-w-md mx-auto" data-i18n="sections.noContentDescription">
-        Images will appear here once uploaded to S3.
-      </p>
+    <!-- Nodes Grid -->
+    <div id="nodes-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {nodes.map((node, index) => (
+        <div 
+          class="node-card group cursor-pointer" 
+          data-node-id={node.id}
+          data-aos="fade-up" 
+          data-aos-delay={index * 100}
+        >
+          <div class="relative overflow-hidden rounded-xl bg-slate-800/50 backdrop-blur-sm border border-white/10 hover:border-amber-400/50 transition-all duration-300 hover:shadow-2xl hover:shadow-amber-400/20">
+            <!-- Title overlay -->
+            <div class="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 via-black/50 to-transparent p-6">
+              <h3 
+                class="node-title text-xl md:text-2xl font-serif font-bold text-white tracking-wide"
+                data-i18n={`sections.${node.key}`}
+              >
+                Loading...
+              </h3>
+            </div>
+            
+            <!-- Image container -->
+            <div class="aspect-[4/3] relative overflow-hidden">
+              <img 
+                data-thumb-src=""
+                alt="Node"
+                class="node-thumb w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                loading="lazy"
+              />
+              <!-- Hover overlay -->
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-8">
+                <span class="text-white font-semibold text-sm tracking-widest uppercase">
+                  Click to view detail
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
 
     <!-- Error state -->
     <div id="error" class="hidden text-center py-20 text-red-400">
-      <p data-i18n="sections.errorLoading">Failed to load images. Please try again later.</p>
+      <p data-i18n="sections.errorLoading">Failed to load images.</p>
     </div>
   </section>
 
+  <!-- Lightbox Modal -->
+  <div id="lightbox" class="fixed inset-0 bg-black/95 z-50 hidden items-center justify-center p-4 md:p-8">
+    <button 
+      id="close-lightbox" 
+      class="absolute top-4 right-4 md:top-8 md:right-8 text-white/70 hover:text-white z-50 transition-colors"
+      aria-label="Close"
+    >
+      <svg class="w-8 h-8 md:w-10 md:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+    
+    <div class="max-w-6xl w-full">
+      <!-- Title -->
+      <div class="mb-6 text-center">
+        <h2 id="lightbox-title" class="text-2xl md:text-4xl font-serif font-bold text-white tracking-wide"></h2>
+      </div>
+      
+      <!-- Detail Image -->
+      <div class="relative">
+        <img 
+          id="lightbox-image" 
+          src="" 
+          alt="" 
+          class="w-full h-auto max-h-[70vh] object-contain rounded-lg shadow-2xl"
+        />
+      </div>
+      
+      <!-- Navigation arrows -->
+      <button 
+        id="prev-node" 
+        class="absolute left-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors"
+        aria-label="Previous"
+      >
+        <svg class="w-10 h-10 md:w-12 md:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
+      
+      <button 
+        id="next-node" 
+        class="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors"
+        aria-label="Next"
+      >
+        <svg class="w-10 h-10 md:w-12 md:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
   <script>
     import { getPreferredLanguage, t } from '../i18n/utils';
+    
+    let currentNodeId = 1;
+    const totalNodes = 9;
+    let nodeImages: Record<number, { thumb: string; detail: string; }> = {};
     
     // Update translations
     function updateTranslations() {
       const currentLang = getPreferredLanguage();
       
-      // Update text content
+      // Update all text with data-i18n
       document.querySelectorAll('[data-i18n]').forEach((el) => {
         const key = (el as HTMLElement).dataset.i18n;
         if (key) {
@@ -68,89 +158,161 @@ import Hero from '../components/Hero.astro';
         }
       });
       
-      // Update Hero title and subtitle
+      // Update Hero
       const heroTitle = document.querySelector('.hero-section h1');
       const heroSubtitle = document.querySelector('.hero-section p');
       if (heroTitle) heroTitle.textContent = t('sections.section1Title', currentLang);
       if (heroSubtitle) heroSubtitle.textContent = t('sections.section1Subtitle', currentLang);
       
-      // Update dynamically created "View Full Size" links if they exist
-      document.querySelectorAll('.view-full-size').forEach((el) => {
-        el.textContent = t('sections.viewFullSize', currentLang);
-      });
-    }
-    
-    // Fetch images from API
-    async function loadImages() {
-      try {
-        const response = await fetch('/api/images/1');
-        const data = await response.json();
-        
-        const loading = document.getElementById('loading');
-        const grid = document.getElementById('images-grid');
-        const noContent = document.getElementById('no-content');
-        const error = document.getElementById('error');
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch images');
-        }
-        
-        if (loading) loading.classList.add('hidden');
-        
-        if (data.files && data.files.length > 0) {
-          if (grid) {
-            grid.classList.remove('hidden');
-            const currentLang = getPreferredLanguage();
-            const viewFullSizeText = t('sections.viewFullSize', currentLang);
-            
-            data.files.forEach((file: any, index: number) => {
-              const card = document.createElement('div');
-              card.className = 'bg-slate-800/50 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-amber-400/50 transition-all duration-300';
-              card.setAttribute('data-aos', 'fade-up');
-              card.setAttribute('data-aos-delay', (index * 100).toString());
-              
-              card.innerHTML = `
-                <div class="flex items-center justify-center h-48 bg-slate-700/50 rounded-lg mb-4 overflow-hidden">
-                  <img 
-                    src="${file.url}" 
-                    alt="${file.filename}"
-                    class="w-full h-full object-cover rounded-lg"
-                    loading="lazy"
-                  />
-                </div>
-                <h3 class="font-semibold text-white mb-2 truncate">${file.filename}</h3>
-                <a 
-                  href="${file.url}"
-                  target="_blank"
-                  class="text-amber-400 text-sm hover:text-amber-300 transition-colors view-full-size"
-                >
-                  ${viewFullSizeText}
-                </a>
-              `;
-              
-              grid.appendChild(card);
-            });
-          }
-        } else {
-          if (noContent) noContent.classList.remove('hidden');
-        }
-      } catch (err) {
-        console.error('Error loading images:', err);
-        const loading = document.getElementById('loading');
-        const error = document.getElementById('error');
-        if (loading) loading.classList.add('hidden');
-        if (error) error.classList.remove('hidden');
+      // Update lightbox title if open
+      const lightbox = document.getElementById('lightbox');
+      if (lightbox && !lightbox.classList.contains('hidden')) {
+        updateLightboxTitle(currentNodeId);
       }
     }
     
-    // Initialize translations
+    // Fetch node images from S3
+    async function loadNodeImages() {
+      try {
+        const response = await fetch('/api/images/1');
+        if (!response.ok) throw new Error('Failed to fetch images');
+        
+        const data = await response.json();
+        
+        // Organize images by node ID
+        if (data.files && data.files.length > 0) {
+          data.files.forEach((file: any) => {
+            const match = file.filename.match(/^(\d+)_(thumb|detail)\.jpg$/);
+            if (match) {
+              const nodeId = parseInt(match[1]);
+              const type = match[2];
+              
+              if (!nodeImages[nodeId]) {
+                nodeImages[nodeId] = { thumb: '', detail: '' };
+              }
+              
+              if (type === 'thumb') {
+                nodeImages[nodeId].thumb = file.url;
+              } else {
+                nodeImages[nodeId].detail = file.url;
+              }
+            }
+          });
+          
+          // Display thumbnails
+          displayNodes();
+        } else {
+          showError();
+        }
+      } catch (err) {
+        console.error('Error loading node images:', err);
+        showError();
+      }
+    }
+    
+    // Display node thumbnails
+    function displayNodes() {
+      const loading = document.getElementById('loading');
+      const grid = document.getElementById('nodes-grid');
+      
+      if (loading) loading.classList.add('hidden');
+      if (grid) grid.classList.remove('hidden');
+      
+      // Set thumbnail images
+      for (let i = 1; i <= totalNodes; i++) {
+        const card = document.querySelector(`[data-node-id="${i}"]`);
+        if (card && nodeImages[i]) {
+          const img = card.querySelector('.node-thumb') as HTMLImageElement;
+          if (img) {
+            img.src = nodeImages[i].thumb;
+            img.alt = t(`sections.node${i}`, getPreferredLanguage());
+          }
+        }
+      }
+      
+      // Add click handlers
+      document.querySelectorAll('.node-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const nodeId = parseInt((card as HTMLElement).dataset.nodeId || '1');
+          openLightbox(nodeId);
+        });
+      });
+    }
+    
+    // Open lightbox with detail image
+    function openLightbox(nodeId: number) {
+      currentNodeId = nodeId;
+      const lightbox = document.getElementById('lightbox');
+      const lightboxImage = document.getElementById('lightbox-image') as HTMLImageElement;
+      
+      if (lightbox && lightboxImage && nodeImages[nodeId]) {
+        lightboxImage.src = nodeImages[nodeId].detail;
+        updateLightboxTitle(nodeId);
+        lightbox.classList.remove('hidden');
+        lightbox.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+    
+    // Close lightbox
+    function closeLightbox() {
+      const lightbox = document.getElementById('lightbox');
+      if (lightbox) {
+        lightbox.classList.add('hidden');
+        lightbox.classList.remove('flex');
+        document.body.style.overflow = '';
+      }
+    }
+    
+    // Update lightbox title
+    function updateLightboxTitle(nodeId: number) {
+      const title = document.getElementById('lightbox-title');
+      if (title) {
+        title.textContent = t(`sections.node${nodeId}`, getPreferredLanguage());
+      }
+    }
+    
+    // Navigate to previous node
+    function prevNode() {
+      currentNodeId = currentNodeId > 1 ? currentNodeId - 1 : totalNodes;
+      openLightbox(currentNodeId);
+    }
+    
+    // Navigate to next node
+    function nextNode() {
+      currentNodeId = currentNodeId < totalNodes ? currentNodeId + 1 : 1;
+      openLightbox(currentNodeId);
+    }
+    
+    // Show error
+    function showError() {
+      const loading = document.getElementById('loading');
+      const error = document.getElementById('error');
+      if (loading) loading.classList.add('hidden');
+      if (error) error.classList.remove('hidden');
+    }
+    
+    // Event listeners
+    document.getElementById('close-lightbox')?.addEventListener('click', closeLightbox);
+    document.getElementById('prev-node')?.addEventListener('click', prevNode);
+    document.getElementById('next-node')?.addEventListener('click', nextNode);
+    
+    // Close lightbox on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') prevNode();
+      if (e.key === 'ArrowRight') nextNode();
+    });
+    
+    // Close lightbox on background click
+    document.getElementById('lightbox')?.addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeLightbox();
+    });
+    
+    // Initialize
     updateTranslations();
-    
-    // Listen for language changes
     window.addEventListener('languagechange', updateTranslations);
-    
-    // Load images when page loads
-    loadImages();
+    loadNodeImages();
   </script>
   
   <!-- Navigation to other sections -->
