@@ -2,17 +2,6 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Navigation from '../components/Navigation.astro';
 import Hero from '../components/Hero.astro';
-import { readdir } from 'node:fs/promises';
-import { join } from 'node:path';
-
-let files: string[] = [];
-try {
-  const materialPath = join(process.cwd(), '..', 'Material', 'Section 3');
-  files = await readdir(materialPath);
-  files = files.filter(file => !file.startsWith('.'));
-} catch (error) {
-  console.log('No files found in Material/Section 3');
-}
 ---
 
 <BaseLayout title="Fotokaart - Doel - Scharnierpunt">
@@ -24,62 +13,83 @@ try {
     height="large"
   />
   
-  <section class="py-24 px-6 max-w-7xl mx-auto">
-    <div class="mb-16" data-aos="fade-up">
-      <h2 class="text-3xl md:text-4xl font-bold mb-4" data-i18n="sections.overview">Section Overview</h2>
-      <p class="text-white/70 text-lg max-w-3xl" data-i18n="sections.section3Description">
-        Section 3 explores detailed architectural concepts and spatial planning strategies.
+  <!-- Photo Map Section -->
+  <section class="py-24 px-6 max-w-7xl mx-auto bg-stone-100 rounded-3xl">
+    <div class="mb-16 text-center" data-aos="fade-up">
+      <h2 class="text-3xl md:text-4xl font-bold mb-2 text-stone-800 uppercase tracking-wider">Photo Map</h2>
+      <p class="text-stone-600 text-lg max-w-3xl mx-auto" data-i18n="sections.section3Description">
+        Explore our photo map.
       </p>
     </div>
     
-    {files.length > 0 ? (
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {files.map((file, index) => (
-          <div 
-            class="bg-slate-800/50 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-amber-400/50 transition-all duration-300"
-            data-aos="fade-up"
-            data-aos-delay={index * 100}
+    <!-- Loading state -->
+    <div id="loading" class="text-center py-20">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-amber-400"></div>
+      <p class="mt-4 text-stone-600" data-i18n="sections.loading">Loading image...</p>
+    </div>
+
+    <!-- Photo Map Container -->
+    <div id="photomap-container" class="hidden" data-aos="fade-up">
+      <div class="bg-white rounded-lg shadow-xl overflow-hidden">
+        <!-- Zoom Controls -->
+        <div class="flex justify-center gap-2 p-4 bg-stone-50 border-b border-stone-200">
+          <button 
+            id="zoom-in-btn" 
+            class="bg-amber-400 hover:bg-amber-500 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+            title="Zoom In"
           >
-            <div class="flex items-center justify-center h-48 bg-slate-700/50 rounded-lg mb-4">
-              {file.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-                <img 
-                  src={`/Material/Section 3/${file}`} 
-                  alt={file}
-                  class="w-full h-full object-cover rounded-lg"
-                />
-              ) : (
-                <svg class="w-16 h-16 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                </svg>
-              )}
-            </div>
-            <h3 class="font-semibold text-white mb-2 truncate">{file}</h3>
-            <a 
-              href={`/Material/Section 3/${file}`}
-              target="_blank"
-              class="text-amber-400 text-sm hover:text-amber-300 transition-colors"
-              data-i18n="sections.viewFile"
-            >
-              View File →
-            </a>
-          </div>
-        ))}
-      </div>
-    ) : (
-      <div class="text-center py-20" data-aos="fade-up">
-        <div class="mb-8">
-          <svg class="w-24 h-24 mx-auto text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-          </svg>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/>
+            </svg>
+            <span>Zoom In</span>
+          </button>
+          <button 
+            id="zoom-out-btn" 
+            class="bg-stone-400 hover:bg-stone-500 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+            title="Zoom Out"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7"/>
+            </svg>
+            <span>Zoom Out</span>
+          </button>
+          <button 
+            id="reset-btn" 
+            class="bg-stone-600 hover:bg-stone-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+            title="Reset View"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            <span>Reset</span>
+          </button>
         </div>
-        <h3 class="text-2xl font-bold mb-4" data-i18n="sections.noContent">No Content Yet</h3>
-        <p class="text-white/60 max-w-md mx-auto">
-          <span data-i18n="sections.addMaterials">Add your images, documents, and materials to</span>
-          <code class="bg-slate-700 px-2 py-1 rounded">/Material/Section 3/</code>
-          <span data-i18n="sections.toSeeHere">to see them here.</span>
-        </p>
+        
+        <!-- Image Container with Pan/Zoom -->
+        <div id="image-wrapper" class="relative overflow-hidden bg-white cursor-grab active:cursor-grabbing" style="height: 70vh; min-height: 500px;">
+          <img 
+            id="photomap-image" 
+            src="" 
+            alt="Photo Map" 
+            class="absolute inset-0 m-auto transition-transform duration-200 select-none max-w-none"
+            draggable="false"
+            style="transform-origin: center center;"
+          />
+        </div>
+        
+        <!-- Instructions -->
+        <div class="p-4 bg-stone-50 border-t border-stone-200">
+          <p class="text-sm text-stone-600 text-center">
+            💡 <strong>Tip:</strong> Use mouse wheel to zoom, click and drag to pan, or use the buttons above
+          </p>
+        </div>
       </div>
-    )}
+    </div>
+
+    <!-- Error state -->
+    <div id="error" class="hidden text-center py-20 text-red-600">
+      <p data-i18n="sections.errorLoading">Failed to load image.</p>
+    </div>
   </section>
   
   <section class="py-12 px-6 border-t border-white/10">
@@ -97,11 +107,10 @@ try {
 <script>
   import { getPreferredLanguage, t } from '../i18n/utils';
   
-  // Update all translations on the page
+  // Update translations
   function updateTranslations() {
     const currentLang = getPreferredLanguage();
     
-    // Update text content
     document.querySelectorAll('[data-i18n]').forEach((el) => {
       const key = (el as HTMLElement).dataset.i18n;
       if (key) {
@@ -109,16 +118,137 @@ try {
       }
     });
     
-    // Update Hero title and subtitle
     const heroTitle = document.querySelector('.hero-section h1');
     const heroSubtitle = document.querySelector('.hero-section p');
     if (heroTitle) heroTitle.textContent = t('sections.section3Title', currentLang);
     if (heroSubtitle) heroSubtitle.textContent = t('sections.section3Subtitle', currentLang);
   }
   
-  // Initialize translations
-  updateTranslations();
+  // Fetch photo map from S3
+  async function loadPhotoMap() {
+    try {
+      const response = await fetch('/api/images/3');
+      if (!response.ok) throw new Error('Failed to fetch image');
+      
+      const data = await response.json();
+      
+      if (data.files && data.files.length > 0) {
+        const photocard = data.files.find((f: any) => f.filename.includes('photocard'));
+        if (photocard) {
+          displayPhotoMap(photocard.url);
+        } else {
+          showError();
+        }
+      } else {
+        showError();
+      }
+    } catch (err) {
+      console.error('Error loading photo map:', err);
+      showError();
+    }
+  }
   
-  // Listen for language changes
+  function displayPhotoMap(imageUrl: string) {
+    const loading = document.getElementById('loading');
+    const container = document.getElementById('photomap-container');
+    const img = document.getElementById('photomap-image') as HTMLImageElement;
+    
+    if (loading) loading.classList.add('hidden');
+    if (container) container.classList.remove('hidden');
+    
+    if (img) {
+      img.src = imageUrl;
+      img.onload = () => initializeZoomPan();
+    }
+  }
+  
+  function showError() {
+    const loading = document.getElementById('loading');
+    const error = document.getElementById('error');
+    if (loading) loading.classList.add('hidden');
+    if (error) error.classList.remove('hidden');
+  }
+  
+  // Zoom and Pan
+  let scale = 1, translateX = 0, translateY = 0, isDragging = false;
+  let startX = 0, startY = 0, imageWidth = 0, imageHeight = 0;
+  
+  function initializeZoomPan() {
+    const img = document.getElementById('photomap-image') as HTMLImageElement;
+    const wrapper = document.getElementById('image-wrapper');
+    if (!img || !wrapper) return;
+    
+    imageWidth = img.naturalWidth;
+    imageHeight = img.naturalHeight;
+    fitToContainer();
+    
+    img.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startX = e.clientX - translateX;
+      startY = e.clientY - translateY;
+      if (wrapper) wrapper.style.cursor = 'grabbing';
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      translateX = e.clientX - startX;
+      translateY = e.clientY - startY;
+      updateTransform();
+    });
+    
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+      if (wrapper) wrapper.style.cursor = 'grab';
+    });
+    
+    wrapper.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (e.deltaY < 0) zoomIn();
+      else zoomOut();
+    });
+    
+    document.getElementById('zoom-in-btn')?.addEventListener('click', zoomIn);
+    document.getElementById('zoom-out-btn')?.addEventListener('click', zoomOut);
+    document.getElementById('reset-btn')?.addEventListener('click', reset);
+    img.addEventListener('dblclick', reset);
+  }
+  
+  function fitToContainer() {
+    const wrapper = document.getElementById('image-wrapper');
+    const img = document.getElementById('photomap-image') as HTMLImageElement;
+    if (!wrapper || !img) return;
+    
+    const scaleX = wrapper.clientWidth / imageWidth;
+    const scaleY = wrapper.clientHeight / imageHeight;
+    scale = Math.min(scaleX, scaleY, 1);
+    translateX = 0;
+    translateY = 0;
+    updateTransform();
+  }
+  
+  function updateTransform() {
+    const img = document.getElementById('photomap-image') as HTMLImageElement;
+    if (img) img.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+  }
+  
+  function zoomIn() {
+    scale = Math.min(scale * 1.3, 5);
+    updateTransform();
+  }
+  
+  function zoomOut() {
+    scale = Math.max(scale / 1.3, 0.1);
+    updateTransform();
+  }
+  
+  function reset() {
+    fitToContainer();
+  }
+  
+  updateTranslations();
   window.addEventListener('languagechange', updateTranslations);
+  loadPhotoMap();
+  window.addEventListener('resize', () => {
+    if (scale === 1 && translateX === 0 && translateY === 0) fitToContainer();
+  });
 </script>
