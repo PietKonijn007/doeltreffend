@@ -132,12 +132,12 @@ const nodes = [
       </div>
       
       <!-- Detail Image Container with Pan/Zoom -->
-      <div id="image-container" class="relative overflow-hidden rounded-lg cursor-grab active:cursor-grabbing" style="max-height: 70vh;">
+      <div id="image-container" class="relative overflow-hidden rounded-lg cursor-grab active:cursor-grabbing flex items-center justify-center" style="max-height: 70vh; max-width: 90vw;">
         <img 
           id="lightbox-image" 
           src="" 
           alt="" 
-          class="w-full h-auto object-contain transition-transform duration-200 select-none"
+          class="max-w-full max-h-[70vh] w-auto h-auto object-contain transition-transform duration-200 select-none"
           draggable="false"
         />
       </div>
