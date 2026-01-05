@@ -81,10 +81,13 @@ export const translations = {
     // Student roles
     roles: {
       projectLead: 'Project Lead',
+      studentArchitect: 'Student Architecture',
+      studentArchitect: 'Student Architecture',
       developer: 'Developer',
       designer: 'Designer',
       contentWriter: 'Content Writer',
       researcher: 'Researcher',
+      studentArchitect: 'Student Architectuur',
     },
   },
   nl: {
@@ -169,10 +172,12 @@ export const translations = {
     // Student rollen
     roles: {
       projectLead: 'Projectleider',
+      studentArchitect: 'Student Architectuur',
       developer: 'Ontwikkelaar',
       designer: 'Ontwerper',
       contentWriter: 'Contentontwikkelaar',
       researcher: 'Onderzoeker',
+      studentArchitect: 'Student Architectuur',
     },
   },
   ko: {
@@ -257,10 +262,12 @@ export const translations = {
     // 학생 역할
     roles: {
       projectLead: '프로젝트 리더',
+      studentArchitect: '학생 건축가',
       developer: '개발자',
       designer: '디자이너',
       contentWriter: '콘텐츠 작가',
       researcher: '연구원',
+      studentArchitect: 'Student Architectuur',
     },
   },
 };
