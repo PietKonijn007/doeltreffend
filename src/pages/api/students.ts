@@ -19,10 +19,10 @@ const s3Client = new S3Client({
 
 export const GET: APIRoute = async () => {
   try {
-    // List all student pictures
+    // List all student pictures from students/ folder
     const listCommand = new ListObjectsV2Command({
       Bucket: BUCKET_NAME,
-      Prefix: 'student_pictures/',
+      Prefix: 'students/',
     });
 
     const listResponse = await s3Client.send(listCommand);
@@ -52,7 +52,7 @@ export const GET: APIRoute = async () => {
       );
     }
 
-    // Generate presigned URLs for all student pictures
+    // Generate presigned URLs for all student pictures with names
     const studentUrls = await Promise.all(
       students.map(async (student) => {
         const command = new GetObjectCommand({
@@ -64,9 +64,17 @@ export const GET: APIRoute = async () => {
         const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
         const filename = student.Key?.split('/').pop() || '';
         
+        // Extract name from filename (e.g., "eline-hofkens.jpg" -> "Eline Hofkens")
+        const nameWithoutExt = filename.replace(/\.[^/.]+$/, ''); // Remove extension
+        const name = nameWithoutExt
+          .split('-')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+        
         return {
           url,
           filename,
+          name,
           size: student.Size,
         };
       })
