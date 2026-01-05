@@ -91,19 +91,54 @@ const nodes = [
       </svg>
     </button>
     
+    <!-- Zoom Controls -->
+    <div class="absolute top-4 left-4 md:top-8 md:left-8 flex flex-col gap-2 z-50">
+      <button 
+        id="zoom-in" 
+        class="bg-white/10 hover:bg-white/20 text-white p-3 rounded-lg transition-colors"
+        aria-label="Zoom In"
+        title="Zoom In (Scroll up)"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/>
+        </svg>
+      </button>
+      <button 
+        id="zoom-out" 
+        class="bg-white/10 hover:bg-white/20 text-white p-3 rounded-lg transition-colors"
+        aria-label="Zoom Out"
+        title="Zoom Out (Scroll down)"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7"/>
+        </svg>
+      </button>
+      <button 
+        id="zoom-reset" 
+        class="bg-white/10 hover:bg-white/20 text-white p-3 rounded-lg transition-colors"
+        aria-label="Reset Zoom"
+        title="Reset (Double-click image)"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+      </button>
+    </div>
+    
     <div class="max-w-6xl w-full">
       <!-- Title -->
       <div class="mb-6 text-center">
         <h2 id="lightbox-title" class="text-2xl md:text-4xl font-serif font-bold text-white tracking-wide"></h2>
       </div>
       
-      <!-- Detail Image -->
-      <div class="relative">
+      <!-- Detail Image Container with Pan/Zoom -->
+      <div id="image-container" class="relative overflow-hidden rounded-lg cursor-grab active:cursor-grabbing" style="max-height: 70vh;">
         <img 
           id="lightbox-image" 
           src="" 
           alt="" 
-          class="w-full h-auto max-h-[70vh] object-contain rounded-lg shadow-2xl"
+          class="w-full h-auto object-contain transition-transform duration-200 select-none"
+          draggable="false"
         />
       </div>
       
@@ -283,21 +318,173 @@ const nodes = [
       if (error) error.classList.remove('hidden');
     }
     
+    // Zoom and Pan functionality
+    let scale = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    
+    function resetZoom() {
+      scale = 1;
+      translateX = 0;
+      translateY = 0;
+      updateImageTransform();
+    }
+    
+    function zoomIn() {
+      scale = Math.min(scale * 1.3, 5); // Max 5x zoom
+      updateImageTransform();
+    }
+    
+    function zoomOut() {
+      scale = Math.max(scale / 1.3, 1); // Min 1x zoom
+      if (scale === 1) {
+        translateX = 0;
+        translateY = 0;
+      }
+      updateImageTransform();
+    }
+    
+    function updateImageTransform() {
+      const img = document.getElementById('lightbox-image') as HTMLImageElement;
+      if (img) {
+        img.style.transform = `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+      }
+    }
+    
+    // Mouse/Touch drag to pan
+    const imageContainer = document.getElementById('image-container');
+    const lightboxImage = document.getElementById('lightbox-image');
+    
+    if (imageContainer && lightboxImage) {
+      // Mouse events
+      lightboxImage.addEventListener('mousedown', (e) => {
+        if (scale > 1) {
+          isDragging = true;
+          startX = e.clientX - translateX;
+          startY = e.clientY - translateY;
+          imageContainer.style.cursor = 'grabbing';
+        }
+      });
+      
+      document.addEventListener('mousemove', (e) => {
+        if (isDragging && scale > 1) {
+          translateX = e.clientX - startX;
+          translateY = e.clientY - startY;
+          updateImageTransform();
+        }
+      });
+      
+      document.addEventListener('mouseup', () => {
+        isDragging = false;
+        if (imageContainer) imageContainer.style.cursor = 'grab';
+      });
+      
+      // Mouse wheel zoom
+      imageContainer.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        if (e.deltaY < 0) {
+          zoomIn();
+        } else {
+          zoomOut();
+        }
+      });
+      
+      // Double-click to reset
+      lightboxImage.addEventListener('dblclick', resetZoom);
+      
+      // Touch events for mobile
+      let touchStartDistance = 0;
+      let initialScale = 1;
+      
+      lightboxImage.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+          e.preventDefault();
+          const touch1 = e.touches[0];
+          const touch2 = e.touches[1];
+          touchStartDistance = Math.hypot(
+            touch2.clientX - touch1.clientX,
+            touch2.clientY - touch1.clientY
+          );
+          initialScale = scale;
+        } else if (e.touches.length === 1 && scale > 1) {
+          isDragging = true;
+          startX = e.touches[0].clientX - translateX;
+          startY = e.touches[0].clientY - translateY;
+        }
+      });
+      
+      lightboxImage.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2) {
+          e.preventDefault();
+          const touch1 = e.touches[0];
+          const touch2 = e.touches[1];
+          const currentDistance = Math.hypot(
+            touch2.clientX - touch1.clientX,
+            touch2.clientY - touch1.clientY
+          );
+          scale = Math.max(1, Math.min(5, initialScale * (currentDistance / touchStartDistance)));
+          updateImageTransform();
+        } else if (e.touches.length === 1 && isDragging && scale > 1) {
+          translateX = e.touches[0].clientX - startX;
+          translateY = e.touches[0].clientY - startY;
+          updateImageTransform();
+        }
+      });
+      
+      lightboxImage.addEventListener('touchend', () => {
+        isDragging = false;
+        if (scale === 1) {
+          translateX = 0;
+          translateY = 0;
+          updateImageTransform();
+        }
+      });
+    }
+    
+    // Zoom button event listeners
+    document.getElementById('zoom-in')?.addEventListener('click', zoomIn);
+    document.getElementById('zoom-out')?.addEventListener('click', zoomOut);
+    document.getElementById('zoom-reset')?.addEventListener('click', resetZoom);
+    
     // Event listeners
-    document.getElementById('close-lightbox')?.addEventListener('click', closeLightbox);
-    document.getElementById('prev-node')?.addEventListener('click', prevNode);
-    document.getElementById('next-node')?.addEventListener('click', nextNode);
+    document.getElementById('close-lightbox')?.addEventListener('click', () => {
+      resetZoom();
+      closeLightbox();
+    });
+    document.getElementById('prev-node')?.addEventListener('click', () => {
+      resetZoom();
+      prevNode();
+    });
+    document.getElementById('next-node')?.addEventListener('click', () => {
+      resetZoom();
+      nextNode();
+    });
     
     // Close lightbox on Escape key
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeLightbox();
-      if (e.key === 'ArrowLeft') prevNode();
-      if (e.key === 'ArrowRight') nextNode();
+      if (e.key === 'Escape') {
+        resetZoom();
+        closeLightbox();
+      }
+      if (e.key === 'ArrowLeft') {
+        resetZoom();
+        prevNode();
+      }
+      if (e.key === 'ArrowRight') {
+        resetZoom();
+        nextNode();
+      }
     });
     
     // Close lightbox on background click
     document.getElementById('lightbox')?.addEventListener('click', (e) => {
-      if (e.target === e.currentTarget) closeLightbox();
+      if (e.target === e.currentTarget) {
+        resetZoom();
+        closeLightbox();
+      }
     });
     
     // Initialize
