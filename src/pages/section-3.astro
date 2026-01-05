@@ -66,14 +66,14 @@ import Hero from '../components/Hero.astro';
         </div>
         
         <!-- Image Container with Pan/Zoom -->
-        <div id="image-wrapper" class="relative overflow-hidden bg-white cursor-grab active:cursor-grabbing" style="height: 70vh; min-height: 500px;">
+        <div id="image-wrapper" class="relative overflow-hidden bg-white cursor-grab active:cursor-grabbing flex items-center justify-center" style="height: 70vh; min-height: 500px;">
           <img 
             id="photomap-image" 
             src="" 
             alt="Photo Map" 
-            class="absolute inset-0 m-auto transition-transform duration-200 select-none max-w-none"
+            class="transition-transform duration-200 select-none"
             draggable="false"
-            style="transform-origin: center center;"
+            style="transform-origin: center center; max-width: none; max-height: none;"
           />
         </div>
         
@@ -218,9 +218,17 @@ import Hero from '../components/Hero.astro';
     const img = document.getElementById('photomap-image') as HTMLImageElement;
     if (!wrapper || !img) return;
     
-    const scaleX = wrapper.clientWidth / imageWidth;
-    const scaleY = wrapper.clientHeight / imageHeight;
-    scale = Math.min(scaleX, scaleY, 1);
+    const wrapperWidth = wrapper.clientWidth;
+    const wrapperHeight = wrapper.clientHeight;
+    
+    const scaleX = wrapperWidth / imageWidth;
+    const scaleY = wrapperHeight / imageHeight;
+    scale = Math.min(scaleX, scaleY);
+    
+    // Set image dimensions to fit
+    img.style.width = `${imageWidth * scale}px`;
+    img.style.height = `${imageHeight * scale}px`;
+    
     translateX = 0;
     translateY = 0;
     updateTransform();
