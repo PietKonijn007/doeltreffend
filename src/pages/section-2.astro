@@ -2,8 +2,10 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Navigation from '../components/Navigation.astro';
 import Hero from '../components/Hero.astro';
+import PDFViewer from '../components/PDFViewer.astro';
 
 // Images will be loaded client-side from S3 via API
+// PDFs will be loaded and processed client-side
 ---
 
 <BaseLayout title="Proces Bundel - Doel - Scharnierpunt">
@@ -21,35 +23,50 @@ import Hero from '../components/Hero.astro';
     <div class="mb-16" data-aos="fade-up">
       <h2 class="text-3xl md:text-4xl font-bold mb-4" data-i18n="sections.overview">Section Overview</h2>
       <p class="text-white/70 text-lg max-w-3xl" data-i18n="sections.section2Description">
-        Welcome to Section 2 of our architecture portfolio. This section contains fundamental concepts and initial design explorations.
+        Welcome to Section 2 of our architecture portfolio. This section contains the complete process bundle showing our design development from concept to final presentation.
       </p>
     </div>
     
-    <!-- Loading state -->
-    <div id="loading" class="text-center py-20">
-      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-amber-400"></div>
-      <p class="mt-4 text-white/70" data-i18n="sections.loading">Loading images...</p>
-    </div>
-
-    <!-- Images container (populated by JavaScript) -->
-    <div id="images-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
-
-    <!-- No content placeholder -->
-    <div id="no-content" class="hidden text-center py-20" data-aos="fade-up">
-      <div class="mb-8">
-        <svg class="w-24 h-24 mx-auto text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-        </svg>
+    <!-- PDF Documents Section -->
+    <div id="pdf-section" class="mb-16">
+      <h3 class="text-2xl font-bold mb-8 text-white" data-aos="fade-up">Process Documentation</h3>
+      <div id="pdf-loading" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-amber-400"></div>
+        <p class="mt-4 text-white/70">Loading PDF documents...</p>
       </div>
-      <h3 class="text-2xl font-bold mb-4" data-i18n="sections.noContent">No Content Yet</h3>
-      <p class="text-white/60 max-w-md mx-auto" data-i18n="sections.noContentDescription">
-        Images will appear here once uploaded to S3.
-      </p>
+      <div id="pdf-container"></div>
     </div>
+    
+    <!-- Images Section -->
+    <div id="images-section">
+      <h3 class="text-2xl font-bold mb-8 text-white" data-aos="fade-up">Additional Materials</h3>
+      
+      <!-- Loading state -->
+      <div id="loading" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-amber-400"></div>
+        <p class="mt-4 text-white/70" data-i18n="sections.loading">Loading images...</p>
+      </div>
 
-    <!-- Error state -->
-    <div id="error" class="hidden text-center py-20 text-red-400">
-      <p data-i18n="sections.errorLoading">Failed to load images. Please try again later.</p>
+      <!-- Images container (populated by JavaScript) -->
+      <div id="images-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+
+      <!-- No content placeholder -->
+      <div id="no-content" class="hidden text-center py-12" data-aos="fade-up">
+        <div class="mb-6">
+          <svg class="w-16 h-16 mx-auto text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+          </svg>
+        </div>
+        <h4 class="text-xl font-bold mb-3" data-i18n="sections.noContent">No Additional Images</h4>
+        <p class="text-white/60 max-w-md mx-auto text-sm" data-i18n="sections.noContentDescription">
+          Additional images will appear here once uploaded.
+        </p>
+      </div>
+
+      <!-- Error state -->
+      <div id="error" class="hidden text-center py-12 text-red-400">
+        <p data-i18n="sections.errorLoading">Failed to load images. Please try again later.</p>
+      </div>
     </div>
   </section>
 
@@ -78,6 +95,294 @@ import Hero from '../components/Hero.astro';
       document.querySelectorAll('.view-full-size').forEach((el) => {
         el.textContent = t('sections.viewFullSize', currentLang);
       });
+    }
+    
+    // Fetch and display PDFs
+    async function loadPDFs() {
+      try {
+        const response = await fetch('/api/pdf/2');
+        const data = await response.json();
+        
+        const pdfLoading = document.getElementById('pdf-loading');
+        const pdfContainer = document.getElementById('pdf-container');
+        
+        if (pdfLoading) pdfLoading.classList.add('hidden');
+        
+        if (data.pdfs && data.pdfs.length > 0) {
+          data.pdfs.forEach((pdf: any) => {
+            if (pdfContainer) {
+              let pdfElement;
+              if (pdf.processed && pdf.pages && pdf.pages.length > 0) {
+                // Create full PDF viewer with thumbnails
+                pdfElement = createFullPDFViewer(pdf);
+              } else {
+                // Create simple PDF download card
+                pdfElement = createSimplePDFCard(pdf);
+              }
+              pdfContainer.appendChild(pdfElement);
+            }
+          });
+        } else {
+          if (pdfContainer) {
+            pdfContainer.innerHTML = `
+              <div class="text-center py-12" data-aos="fade-up">
+                <div class="mb-6">
+                  <svg class="w-16 h-16 mx-auto text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                </div>
+                <h4 class="text-xl font-bold mb-3">No PDF Documents</h4>
+                <p class="text-white/60 max-w-md mx-auto text-sm">
+                  PDF documents will appear here once uploaded.
+                </p>
+              </div>
+            `;
+          }
+        }
+      } catch (error) {
+        console.error('Error loading PDFs:', error);
+        const pdfLoading = document.getElementById('pdf-loading');
+        const pdfContainer = document.getElementById('pdf-container');
+        if (pdfLoading) pdfLoading.classList.add('hidden');
+        if (pdfContainer) {
+          pdfContainer.innerHTML = `
+            <div class="text-center py-12 text-red-400">
+              <p>Failed to load PDF documents. Please try again later.</p>
+            </div>
+          `;
+        }
+      }
+    }
+    
+    // Create full PDF viewer element
+    function createFullPDFViewer(pdf: any) {
+      const container = document.createElement('div');
+      container.className = 'book-viewer-container';
+      container.setAttribute('data-aos', 'fade-up');
+      container.setAttribute('data-total-pages', pdf.totalPages.toString());
+      container.setAttribute('data-pages', JSON.stringify(pdf.pages));
+      
+      // Create header
+      const header = document.createElement('div');
+      header.className = 'bg-slate-800/50 backdrop-blur-sm border border-white/10 rounded-xl p-6 mb-8';
+      header.innerHTML = `
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h3 class="text-2xl font-bold text-white mb-2">${pdf.filename}</h3>
+            <p class="text-white/70">${pdf.totalPages} pages • Process Bundle Documentation</p>
+          </div>
+          <div class="flex gap-3">
+            <button id="book-view-btn" class="px-4 py-2 bg-amber-500 text-black font-semibold rounded-lg hover:bg-amber-400 transition-colors">
+              📖 Book View
+            </button>
+            <button id="grid-view-btn" class="px-4 py-2 bg-slate-700 text-white font-semibold rounded-lg hover:bg-slate-600 transition-colors">
+              🔲 Grid View
+            </button>
+            <a href="${pdf.url}" target="_blank" class="px-4 py-2 bg-slate-700 text-white font-semibold rounded-lg hover:bg-slate-600 transition-colors">
+              📥 Download PDF
+            </a>
+          </div>
+        </div>
+      `;
+      
+      // Create book view
+      const bookView = document.createElement('div');
+      bookView.id = 'book-view';
+      bookView.className = 'book-container';
+      
+      // Book cover
+      const bookCover = document.createElement('div');
+      bookCover.className = 'book-cover mb-8';
+      bookCover.setAttribute('data-aos', 'zoom-in');
+      bookCover.innerHTML = `
+        <div class="book-spine"></div>
+        <div class="book-front">
+          <div class="book-content">
+            <div class="cover-image">
+              <img src="${pdf.pages[0]?.thumbnailUrl}" alt="Cover" class="w-full h-full object-cover rounded-lg" />
+            </div>
+            <div class="cover-overlay">
+              <h4 class="text-white text-xl font-bold mb-2">${pdf.filename}</h4>
+              <p class="text-white/80 text-sm">Architecture Portfolio</p>
+              <p class="text-white/60 text-xs mt-2">${pdf.totalPages} Pages</p>
+              <button id="open-book-btn" class="mt-4 px-6 py-2 bg-amber-500 text-black font-semibold rounded-lg hover:bg-amber-400 transition-colors">
+                Open Book
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Book reader
+      const bookReader = document.createElement('div');
+      bookReader.id = 'book-reader';
+      bookReader.className = 'hidden';
+      bookReader.innerHTML = `
+        <div class="book-reader-container">
+          <div class="book-page left-page">
+            <div class="page-content">
+              <img id="left-page-img" src="" alt="" class="page-image" />
+              <div class="page-number left">
+                <span id="left-page-number"></span>
+              </div>
+            </div>
+          </div>
+          <div class="book-binding"></div>
+          <div class="book-page right-page">
+            <div class="page-content">
+              <img id="right-page-img" src="" alt="" class="page-image" />
+              <div class="page-number right">
+                <span id="right-page-number"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="book-controls">
+          <button id="prev-page-btn" class="control-btn prev-btn">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            <span>Previous</span>
+          </button>
+          
+          <div class="page-indicator">
+            <span id="current-spread">1-2</span> / ${Math.ceil(pdf.totalPages / 2)}
+          </div>
+          
+          <button id="next-page-btn" class="control-btn next-btn">
+            <span>Next</span>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        </div>
+        
+        <div class="page-thumbnails">
+          <div class="thumbnails-container">
+            ${pdf.pages.map((page: any) => `
+              <button class="thumbnail-btn" data-page="${page.pageNumber}" title="Page ${page.pageNumber}">
+                <img src="${page.thumbnailUrl}" alt="Page ${page.pageNumber}" class="thumbnail-img" />
+                <span class="thumbnail-number">${page.pageNumber}</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      
+      bookView.appendChild(bookCover);
+      bookView.appendChild(bookReader);
+      
+      // Create grid view
+      const gridView = document.createElement('div');
+      gridView.id = 'grid-view';
+      gridView.className = 'hidden grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8';
+      
+      pdf.pages.forEach((page: any) => {
+        const pageCard = document.createElement('div');
+        pageCard.className = 'pdf-page-card bg-slate-800/30 border border-white/10 rounded-lg overflow-hidden hover:border-amber-400/50 transition-all duration-300 cursor-pointer';
+        pageCard.setAttribute('data-page', page.pageNumber.toString());
+        pageCard.setAttribute('data-full-image', page.imageUrl);
+        pageCard.innerHTML = `
+          <div class="aspect-[3/4] overflow-hidden">
+            <img src="${page.thumbnailUrl}" alt="Page ${page.pageNumber}" 
+                 class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+          </div>
+          <div class="p-3">
+            <p class="text-white/80 text-sm font-medium">Page ${page.pageNumber}</p>
+          </div>
+        `;
+        gridView.appendChild(pageCard);
+      });
+      
+      // Assemble the container
+      container.appendChild(header);
+      container.appendChild(bookView);
+      container.appendChild(gridView);
+      
+      // Add styles
+      addBookViewerStyles();
+      
+      return container;
+    }
+    
+    function addBookViewerStyles() {
+      if (!document.querySelector('#book-viewer-styles')) {
+        const style = document.createElement('style');
+        style.id = 'book-viewer-styles';
+        style.textContent = `
+          .book-container { max-width: 1200px; margin: 0 auto; perspective: 1500px; }
+          .book-cover { position: relative; width: 300px; height: 400px; margin: 0 auto; transform-style: preserve-3d; transition: transform 0.6s ease-in-out; cursor: pointer; }
+          .book-spine { position: absolute; left: -20px; top: 0; width: 20px; height: 100%; background: linear-gradient(to right, #1e293b, #334155); border-radius: 4px 0 0 4px; transform: rotateY(-90deg); transform-origin: right center; }
+          .book-front { position: relative; width: 100%; height: 100%; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border-radius: 8px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1); border: 2px solid #475569; }
+          .book-content { position: relative; width: 100%; height: 100%; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+          .cover-image { flex: 1; border-radius: 6px; overflow: hidden; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); }
+          .cover-overlay { text-align: center; background: rgba(0, 0, 0, 0.7); padding: 16px; border-radius: 6px; backdrop-filter: blur(10px); }
+          .book-reader-container { display: flex; justify-content: center; align-items: center; gap: 0; max-width: 1000px; margin: 0 auto; perspective: 1200px; transition: transform 0.6s ease-in-out; }
+          .book-reader-container.page-turning { transform: scale(0.98); }
+          .book-page { position: relative; width: 400px; height: 550px; background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.8); transition: all 0.6s ease-in-out; }
+          .left-page { border-radius: 8px 0 0 8px; border-right: none; transform-origin: right center; }
+          .right-page { border-radius: 0 8px 8px 0; border-left: none; transform-origin: left center; }
+          .book-binding { width: 20px; height: 550px; background: linear-gradient(to right, #1e293b, #334155, #1e293b); box-shadow: inset 2px 0 4px rgba(0, 0, 0, 0.3), inset -2px 0 4px rgba(0, 0, 0, 0.3); position: relative; }
+          .book-binding::before { content: ''; position: absolute; top: 10%; left: 50%; transform: translateX(-50%); width: 2px; height: 80%; background: #475569; border-radius: 1px; }
+          .page-content { position: relative; width: 100%; height: 100%; padding: 20px; display: flex; flex-direction: column; }
+          .page-image { flex: 1; width: 100%; object-fit: contain; border-radius: 4px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+          .page-number { position: absolute; bottom: 15px; font-size: 12px; color: #64748b; font-weight: 500; }
+          .page-number.left { left: 20px; }
+          .page-number.right { right: 20px; }
+          .book-controls { display: flex; justify-content: space-between; align-items: center; margin: 30px auto; max-width: 600px; padding: 0 20px; }
+          .control-btn { display: flex; align-items: center; gap: 8px; padding: 12px 20px; background: rgba(51, 65, 85, 0.8); color: white; border: 1px solid #475569; border-radius: 8px; font-weight: 500; transition: all 0.3s ease; backdrop-filter: blur(10px); }
+          .control-btn:hover:not(:disabled) { background: rgba(245, 158, 11, 0.9); color: black; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); }
+          .control-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+          .page-indicator { padding: 8px 16px; background: rgba(0, 0, 0, 0.7); color: white; border-radius: 20px; font-weight: 500; backdrop-filter: blur(10px); }
+          .page-thumbnails { margin-top: 40px; padding: 20px; background: rgba(30, 41, 59, 0.5); border-radius: 12px; backdrop-filter: blur(10px); }
+          .thumbnails-container { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; scrollbar-width: thin; scrollbar-color: #475569 transparent; }
+          .thumbnail-btn { position: relative; flex-shrink: 0; width: 60px; height: 80px; border: 2px solid transparent; border-radius: 6px; overflow: hidden; transition: all 0.3s ease; background: white; }
+          .thumbnail-btn:hover { border-color: #f59e0b; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); }
+          .thumbnail-btn.active { border-color: #f59e0b; box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3); }
+          .thumbnail-img { width: 100%; height: 100%; object-fit: cover; }
+          .thumbnail-number { position: absolute; bottom: 2px; right: 4px; background: rgba(0, 0, 0, 0.7); color: white; font-size: 10px; padding: 2px 4px; border-radius: 2px; font-weight: 500; }
+          @media (max-width: 768px) {
+            .book-reader-container { flex-direction: column; gap: 20px; }
+            .book-page { width: 300px; height: 400px; }
+            .left-page, .right-page { border-radius: 8px; border: 1px solid #e2e8f0; }
+            .book-binding { display: none; }
+            .book-controls { flex-direction: column; gap: 16px; }
+            .control-btn { width: 100%; justify-content: center; }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }
+    
+    // Create simple PDF card element
+    function createSimplePDFCard(pdf: any) {
+      const sizeInMB = (pdf.size / (1024 * 1024)).toFixed(1);
+      
+      const container = document.createElement('div');
+      container.className = 'bg-slate-800/50 backdrop-blur-sm border border-white/10 rounded-xl p-6';
+      container.innerHTML = `
+        <div class="flex items-center gap-4">
+          <div class="flex-shrink-0">
+            <svg class="w-12 h-12 text-red-400" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+            </svg>
+          </div>
+          <div class="flex-grow">
+            <h3 class="text-xl font-bold text-white mb-1">${pdf.filename}</h3>
+            <p class="text-white/70 text-sm">PDF Document • ${sizeInMB} MB</p>
+            <p class="text-white/60 text-xs mt-1">Click to download and view the complete process bundle</p>
+          </div>
+          <div class="flex-shrink-0">
+            <a href="${pdf.url}" target="_blank" 
+               class="px-6 py-3 bg-amber-500 text-black font-semibold rounded-lg hover:bg-amber-400 transition-colors">
+              Download
+            </a>
+          </div>
+        </div>
+      `;
+      
+      return container;
     }
     
     // Fetch images from API
@@ -143,14 +448,285 @@ import Hero from '../components/Hero.astro';
       }
     }
     
-    // Initialize translations
+    // Modal functionality for PDF pages
+    function setupPDFModal() {
+      // Create modal if it doesn't exist
+      if (!document.getElementById('pdf-modal')) {
+        const modal = document.createElement('div');
+        modal.id = 'pdf-modal';
+        modal.className = 'fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4';
+        modal.innerHTML = `
+          <div class="relative max-w-7xl max-h-full">
+            <button id="close-pdf-modal" class="absolute -top-12 right-0 text-white hover:text-amber-400 transition-colors">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+            <img id="pdf-modal-image" src="" alt="" class="max-w-full max-h-full object-contain rounded-lg" />
+            <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+              <div class="bg-black/70 text-white px-4 py-2 rounded-full text-sm">
+                <span id="pdf-modal-page-info"></span>
+              </div>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Setup modal event listeners
+        const closeBtn = document.getElementById('close-pdf-modal');
+        closeBtn?.addEventListener('click', () => {
+          modal.classList.add('hidden');
+        });
+        
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.classList.add('hidden');
+          }
+        });
+        
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+            modal.classList.add('hidden');
+          }
+        });
+      }
+      
+      // Setup click handlers for PDF page cards
+      document.addEventListener('click', (e) => {
+        const card = (e.target as Element).closest('.pdf-page-card');
+        if (card) {
+          const pageNumber = card.getAttribute('data-page');
+          const fullImage = card.getAttribute('data-full-image');
+          const modal = document.getElementById('pdf-modal');
+          const modalImage = document.getElementById('pdf-modal-image');
+          const modalPageInfo = document.getElementById('pdf-modal-page-info');
+          
+          if (modalImage && modalPageInfo && modal) {
+            (modalImage as HTMLImageElement).src = fullImage || '';
+            (modalImage as HTMLImageElement).alt = `Page ${pageNumber}`;
+            modalPageInfo.textContent = `Page ${pageNumber}`;
+            modal.classList.remove('hidden');
+          }
+        }
+      });
+    }
+    
+    // Initialize everything
     updateTranslations();
+    loadPDFs();
+    loadImages();
+    setupPDFModal();
+    
+    // Setup book interactions
+    setupBookInteractions();
     
     // Listen for language changes
     window.addEventListener('languagechange', updateTranslations);
     
-    // Load images when page loads
-    loadImages();
+    // Setup book interactions
+    function setupBookInteractions() {
+      // Book viewer variables
+      let currentSpread = 1;
+      
+      function getCurrentPDF() {
+        const container = document.querySelector('.book-viewer-container');
+        if (!container) return null;
+        
+        const totalPages = parseInt(container.getAttribute('data-total-pages') || '0');
+        const pagesData = JSON.parse(container.getAttribute('data-pages') || '[]');
+        
+        return { totalPages, pages: pagesData };
+      }
+      
+      function switchToBookView() {
+        const bookView = document.getElementById('book-view');
+        const gridView = document.getElementById('grid-view');
+        const bookViewBtn = document.getElementById('book-view-btn');
+        const gridViewBtn = document.getElementById('grid-view-btn');
+        
+        if (bookView && gridView) {
+          bookView.classList.remove('hidden');
+          gridView.classList.add('hidden');
+        }
+        
+        if (bookViewBtn && gridViewBtn) {
+          bookViewBtn.classList.add('bg-amber-500', 'text-black');
+          bookViewBtn.classList.remove('bg-slate-700', 'text-white');
+          gridViewBtn.classList.remove('bg-amber-500', 'text-black');
+          gridViewBtn.classList.add('bg-slate-700', 'text-white');
+        }
+      }
+      
+      function switchToGridView() {
+        const bookView = document.getElementById('book-view');
+        const gridView = document.getElementById('grid-view');
+        const bookViewBtn = document.getElementById('book-view-btn');
+        const gridViewBtn = document.getElementById('grid-view-btn');
+        
+        if (bookView && gridView) {
+          bookView.classList.add('hidden');
+          gridView.classList.remove('hidden');
+        }
+        
+        if (bookViewBtn && gridViewBtn) {
+          gridViewBtn.classList.add('bg-amber-500', 'text-black');
+          gridViewBtn.classList.remove('bg-slate-700', 'text-white');
+          bookViewBtn.classList.remove('bg-amber-500', 'text-black');
+          bookViewBtn.classList.add('bg-slate-700', 'text-white');
+        }
+      }
+      
+      function updateBookPages() {
+        const pdf = getCurrentPDF();
+        if (!pdf) return;
+        
+        const leftPageImg = document.getElementById('left-page-img');
+        const rightPageImg = document.getElementById('right-page-img');
+        const leftPageNumber = document.getElementById('left-page-number');
+        const rightPageNumber = document.getElementById('right-page-number');
+        const currentSpreadSpan = document.getElementById('current-spread');
+        const prevBtn = document.getElementById('prev-page-btn');
+        const nextBtn = document.getElementById('next-page-btn');
+        
+        // Calculate page numbers for current spread
+        const leftPageNum = (currentSpread - 1) * 2 + 1;
+        const rightPageNum = leftPageNum + 1;
+        
+        // Update left page
+        if (leftPageNum <= pdf.totalPages && pdf.pages[leftPageNum - 1]) {
+          if (leftPageImg) (leftPageImg as HTMLImageElement).src = pdf.pages[leftPageNum - 1].imageUrl;
+          if (leftPageNumber) leftPageNumber.textContent = leftPageNum.toString();
+        } else {
+          if (leftPageImg) (leftPageImg as HTMLImageElement).src = '';
+          if (leftPageNumber) leftPageNumber.textContent = '';
+        }
+        
+        // Update right page
+        if (rightPageNum <= pdf.totalPages && pdf.pages[rightPageNum - 1]) {
+          if (rightPageImg) (rightPageImg as HTMLImageElement).src = pdf.pages[rightPageNum - 1].imageUrl;
+          if (rightPageNumber) rightPageNumber.textContent = rightPageNum.toString();
+        } else {
+          if (rightPageImg) (rightPageImg as HTMLImageElement).src = '';
+          if (rightPageNumber) rightPageNumber.textContent = '';
+        }
+        
+        // Update spread indicator
+        if (currentSpreadSpan) {
+          if (rightPageNum <= pdf.totalPages) {
+            currentSpreadSpan.textContent = `${leftPageNum}-${rightPageNum}`;
+          } else {
+            currentSpreadSpan.textContent = leftPageNum.toString();
+          }
+        }
+        
+        // Update button states
+        const totalSpreads = Math.ceil(pdf.totalPages / 2);
+        if (prevBtn) (prevBtn as HTMLButtonElement).disabled = currentSpread === 1;
+        if (nextBtn) (nextBtn as HTMLButtonElement).disabled = currentSpread === totalSpreads;
+        
+        // Update thumbnail highlights
+        document.querySelectorAll('.thumbnail-btn').forEach((thumb, index) => {
+          const pageNum = index + 1;
+          if (pageNum === leftPageNum || pageNum === rightPageNum) {
+            thumb.classList.add('active');
+          } else {
+            thumb.classList.remove('active');
+          }
+        });
+        
+        // Add page turn animation
+        const bookReader = document.querySelector('.book-reader-container');
+        if (bookReader) {
+          bookReader.classList.add('page-turning');
+          setTimeout(() => {
+            bookReader.classList.remove('page-turning');
+          }, 600);
+        }
+      }
+      
+      // Event delegation for all interactions
+      document.addEventListener('click', (e) => {
+        const target = e.target as Element;
+        
+        // Handle book viewer interactions
+        if (target.id === 'open-book-btn' || target.closest('#open-book-btn')) {
+          const bookCover = document.querySelector('.book-cover');
+          const bookReader = document.getElementById('book-reader');
+          
+          if (bookCover && bookReader) {
+            (bookCover as HTMLElement).style.transform = 'rotateY(-180deg)';
+            setTimeout(() => {
+              bookCover.classList.add('hidden');
+              bookReader.classList.remove('hidden');
+              updateBookPages();
+            }, 600);
+          }
+          return;
+        }
+        
+        // Handle view switching
+        if (target.id === 'book-view-btn' || target.closest('#book-view-btn')) {
+          switchToBookView();
+          return;
+        }
+        
+        if (target.id === 'grid-view-btn' || target.closest('#grid-view-btn')) {
+          switchToGridView();
+          return;
+        }
+        
+        // Handle book navigation
+        if (target.id === 'prev-page-btn' || target.closest('#prev-page-btn')) {
+          if (currentSpread > 1) {
+            currentSpread--;
+            updateBookPages();
+          }
+          return;
+        }
+        
+        if (target.id === 'next-page-btn' || target.closest('#next-page-btn')) {
+          const pdf = getCurrentPDF();
+          const totalSpreads = Math.ceil(pdf?.totalPages / 2 || 1);
+          if (currentSpread < totalSpreads) {
+            currentSpread++;
+            updateBookPages();
+          }
+          return;
+        }
+        
+        // Handle thumbnail navigation
+        const thumbnailBtn = target.closest('.thumbnail-btn');
+        if (thumbnailBtn) {
+          const pageNum = parseInt(thumbnailBtn.getAttribute('data-page') || '1');
+          currentSpread = Math.ceil(pageNum / 2);
+          updateBookPages();
+          return;
+        }
+      });
+      
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        const bookReader = document.getElementById('book-reader');
+        
+        if (bookReader && !bookReader.classList.contains('hidden')) {
+          const pdf = getCurrentPDF();
+          const totalSpreads = Math.ceil(pdf?.totalPages / 2 || 1);
+          
+          if (e.key === 'ArrowLeft' && currentSpread > 1) {
+            currentSpread--;
+            updateBookPages();
+          } else if (e.key === 'ArrowRight' && currentSpread < totalSpreads) {
+            currentSpread++;
+            updateBookPages();
+          }
+        }
+      });
+      
+      // Initialize book view after a short delay to ensure DOM is ready
+      setTimeout(() => {
+        switchToBookView();
+      }, 500);
+    }
   </script>
   
   <!-- Navigation to other sections -->

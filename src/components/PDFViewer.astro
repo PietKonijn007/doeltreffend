@@ -1,0 +1,745 @@
+---
+export interface Props {
+  pdfInfo: {
+    filename: string;
+    totalPages: number;
+    pages: Array<{
+      pageNumber: number;
+      imageUrl: string;
+      thumbnailUrl: string;
+    }>;
+    originalUrl: string;
+  };
+}
+
+const { pdfInfo } = Astro.props;
+---
+
+<div class="book-viewer-container" data-aos="fade-up">
+  <!-- PDF Header -->
+  <div class="bg-slate-800/50 backdrop-blur-sm border border-white/10 rounded-xl p-6 mb-8">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h3 class="text-2xl font-bold text-white mb-2">{pdfInfo.filename}</h3>
+        <p class="text-white/70">
+          {pdfInfo.totalPages} pages • Process Bundle Documentation
+        </p>
+      </div>
+      <div class="flex gap-3">
+        <button 
+          id="book-view-btn"
+          class="px-4 py-2 bg-amber-500 text-black font-semibold rounded-lg hover:bg-amber-400 transition-colors active"
+        >
+          📖 Book View
+        </button>
+        <button 
+          id="grid-view-btn"
+          class="px-4 py-2 bg-slate-700 text-white font-semibold rounded-lg hover:bg-slate-600 transition-colors"
+        >
+          🔲 Grid View
+        </button>
+        <a 
+          href={pdfInfo.originalUrl}
+          target="_blank"
+          class="px-4 py-2 bg-slate-700 text-white font-semibold rounded-lg hover:bg-slate-600 transition-colors"
+        >
+          📥 Download PDF
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Book View (Default) -->
+  <div id="book-view" class="book-container">
+    <!-- Book Cover -->
+    <div class="book-cover mb-8" data-aos="zoom-in">
+      <div class="book-spine"></div>
+      <div class="book-front">
+        <div class="book-content">
+          <div class="cover-image">
+            <img 
+              src={pdfInfo.pages[0]?.thumbnailUrl}
+              alt="Cover"
+              class="w-full h-full object-cover rounded-lg"
+            />
+          </div>
+          <div class="cover-overlay">
+            <h4 class="text-white text-xl font-bold mb-2">{pdfInfo.filename}</h4>
+            <p class="text-white/80 text-sm">Architecture Portfolio</p>
+            <p class="text-white/60 text-xs mt-2">{pdfInfo.totalPages} Pages</p>
+            <button id="open-book-btn" class="mt-4 px-6 py-2 bg-amber-500 text-black font-semibold rounded-lg hover:bg-amber-400 transition-colors">
+              Open Book
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Book Reader (Hidden initially) -->
+    <div id="book-reader" class="hidden">
+      <div class="book-reader-container">
+        <!-- Left Page -->
+        <div class="book-page left-page">
+          <div class="page-content">
+            <img 
+              id="left-page-img"
+              src=""
+              alt=""
+              class="page-image"
+            />
+            <div class="page-number left">
+              <span id="left-page-number"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Book Spine/Binding -->
+        <div class="book-binding"></div>
+
+        <!-- Right Page -->
+        <div class="book-page right-page">
+          <div class="page-content">
+            <img 
+              id="right-page-img"
+              src=""
+              alt=""
+              class="page-image"
+            />
+            <div class="page-number right">
+              <span id="right-page-number"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Book Controls -->
+      <div class="book-controls">
+        <button id="prev-page-btn" class="control-btn prev-btn">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          <span>Previous</span>
+        </button>
+        
+        <div class="page-indicator">
+          <span id="current-spread">1-2</span> / {Math.ceil(pdfInfo.totalPages / 2)}
+        </div>
+        
+        <button id="next-page-btn" class="control-btn next-btn">
+          <span>Next</span>
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Page Navigation Thumbnails -->
+      <div class="page-thumbnails">
+        <div class="thumbnails-container">
+          {pdfInfo.pages.map((page, index) => (
+            <button 
+              class="thumbnail-btn"
+              data-page={page.pageNumber}
+              title={`Page ${page.pageNumber}`}
+            >
+              <img 
+                src={page.thumbnailUrl}
+                alt={`Page ${page.pageNumber}`}
+                class="thumbnail-img"
+              />
+              <span class="thumbnail-number">{page.pageNumber}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid View (Hidden by default) -->
+  <div id="grid-view" class="hidden grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+    {pdfInfo.pages.map((page) => (
+      <div 
+        class="pdf-page-card bg-slate-800/30 border border-white/10 rounded-lg overflow-hidden hover:border-amber-400/50 transition-all duration-300 cursor-pointer"
+        data-page={page.pageNumber}
+        data-full-image={page.imageUrl}
+      >
+        <div class="aspect-[3/4] overflow-hidden">
+          <img 
+            src={page.thumbnailUrl}
+            alt={`Page ${page.pageNumber}`}
+            class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+            loading="lazy"
+          />
+        </div>
+        <div class="p-3">
+          <p class="text-white/80 text-sm font-medium">Page {page.pageNumber}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<!-- Modal for Full-Size View -->
+<div id="image-modal" class="fixed inset-0 bg-black/90 z-50 hidden flex items-center justify-center p-4">
+  <div class="relative max-w-7xl max-h-full">
+    <button 
+      id="close-modal"
+      class="absolute -top-12 right-0 text-white hover:text-amber-400 transition-colors"
+    >
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+    <img 
+      id="modal-image"
+      src=""
+      alt=""
+      class="max-w-full max-h-full object-contain rounded-lg"
+    />
+    <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+      <div class="bg-black/70 text-white px-4 py-2 rounded-full text-sm">
+        <span id="modal-page-info"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Book viewer functionality
+  let currentSpread = 1; // Each spread shows 2 pages
+  const totalPages = parseInt(document.querySelector('[data-total-pages]')?.getAttribute('data-total-pages') || '1');
+  const totalSpreads = Math.ceil(totalPages / 2);
+  const pages = JSON.parse(document.querySelector('[data-pages]')?.getAttribute('data-pages') || '[]');
+
+  // View switching
+  const bookViewBtn = document.getElementById('book-view-btn');
+  const gridViewBtn = document.getElementById('grid-view-btn');
+  const bookView = document.getElementById('book-view');
+  const gridView = document.getElementById('grid-view');
+
+  function switchToBookView() {
+    bookView?.classList.remove('hidden');
+    gridView?.classList.add('hidden');
+    bookViewBtn?.classList.add('active', 'bg-amber-500', 'text-black');
+    bookViewBtn?.classList.remove('bg-slate-700', 'text-white');
+    gridViewBtn?.classList.remove('active', 'bg-amber-500', 'text-black');
+    gridViewBtn?.classList.add('bg-slate-700', 'text-white');
+  }
+
+  function switchToGridView() {
+    bookView?.classList.add('hidden');
+    gridView?.classList.remove('hidden');
+    gridViewBtn?.classList.add('active', 'bg-amber-500', 'text-black');
+    gridViewBtn?.classList.remove('bg-slate-700', 'text-white');
+    bookViewBtn?.classList.remove('active', 'bg-amber-500', 'text-black');
+    bookViewBtn?.classList.add('bg-slate-700', 'text-white');
+  }
+
+  bookViewBtn?.addEventListener('click', switchToBookView);
+  gridViewBtn?.addEventListener('click', switchToGridView);
+
+  // Book functionality
+  function openBook() {
+    const bookCover = document.querySelector('.book-cover');
+    const bookReader = document.getElementById('book-reader');
+    
+    if (bookCover && bookReader) {
+      bookCover.style.transform = 'rotateY(-180deg)';
+      setTimeout(() => {
+        bookCover.classList.add('hidden');
+        bookReader.classList.remove('hidden');
+        updateBookPages();
+      }, 600);
+    }
+  }
+
+  function updateBookPages() {
+    const leftPageImg = document.getElementById('left-page-img');
+    const rightPageImg = document.getElementById('right-page-img');
+    const leftPageNumber = document.getElementById('left-page-number');
+    const rightPageNumber = document.getElementById('right-page-number');
+    const currentSpreadSpan = document.getElementById('current-spread');
+    const prevBtn = document.getElementById('prev-page-btn');
+    const nextBtn = document.getElementById('next-page-btn');
+    
+    // Calculate page numbers for current spread
+    const leftPageNum = (currentSpread - 1) * 2 + 1;
+    const rightPageNum = leftPageNum + 1;
+    
+    // Update left page
+    if (leftPageNum <= totalPages && pages[leftPageNum - 1]) {
+      if (leftPageImg) leftPageImg.src = pages[leftPageNum - 1].imageUrl;
+      if (leftPageNumber) leftPageNumber.textContent = leftPageNum.toString();
+    } else {
+      if (leftPageImg) leftPageImg.src = '';
+      if (leftPageNumber) leftPageNumber.textContent = '';
+    }
+    
+    // Update right page
+    if (rightPageNum <= totalPages && pages[rightPageNum - 1]) {
+      if (rightPageImg) rightPageImg.src = pages[rightPageNum - 1].imageUrl;
+      if (rightPageNumber) rightPageNumber.textContent = rightPageNum.toString();
+    } else {
+      if (rightPageImg) rightPageImg.src = '';
+      if (rightPageNumber) rightPageNumber.textContent = '';
+    }
+    
+    // Update spread indicator
+    if (currentSpreadSpan) {
+      if (rightPageNum <= totalPages) {
+        currentSpreadSpan.textContent = `${leftPageNum}-${rightPageNum}`;
+      } else {
+        currentSpreadSpan.textContent = leftPageNum.toString();
+      }
+    }
+    
+    // Update button states
+    if (prevBtn) prevBtn.disabled = currentSpread === 1;
+    if (nextBtn) nextBtn.disabled = currentSpread === totalSpreads;
+    
+    // Update thumbnail highlights
+    document.querySelectorAll('.thumbnail-btn').forEach((thumb, index) => {
+      const pageNum = index + 1;
+      if (pageNum === leftPageNum || pageNum === rightPageNum) {
+        thumb.classList.add('active');
+      } else {
+        thumb.classList.remove('active');
+      }
+    });
+    
+    // Add page turn animation
+    const bookReader = document.querySelector('.book-reader-container');
+    if (bookReader) {
+      bookReader.classList.add('page-turning');
+      setTimeout(() => {
+        bookReader.classList.remove('page-turning');
+      }, 600);
+    }
+  }
+
+  // Book controls
+  document.getElementById('open-book-btn')?.addEventListener('click', openBook);
+
+  document.getElementById('prev-page-btn')?.addEventListener('click', () => {
+    if (currentSpread > 1) {
+      currentSpread--;
+      updateBookPages();
+    }
+  });
+
+  document.getElementById('next-page-btn')?.addEventListener('click', () => {
+    if (currentSpread < totalSpreads) {
+      currentSpread++;
+      updateBookPages();
+    }
+  });
+
+  // Thumbnail navigation
+  document.querySelectorAll('.thumbnail-btn').forEach((thumb, index) => {
+    thumb.addEventListener('click', () => {
+      const pageNum = index + 1;
+      currentSpread = Math.ceil(pageNum / 2);
+      updateBookPages();
+    });
+  });
+
+  // Modal functionality for grid view
+  const modal = document.getElementById('image-modal');
+  const modalImage = document.getElementById('modal-image');
+  const modalPageInfo = document.getElementById('modal-page-info');
+  const closeModal = document.getElementById('close-modal');
+
+  document.querySelectorAll('.pdf-page-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const pageNumber = card.getAttribute('data-page');
+      const fullImage = card.getAttribute('data-full-image');
+      
+      if (modalImage && modalPageInfo && modal) {
+        modalImage.src = fullImage || '';
+        modalImage.alt = `Page ${pageNumber}`;
+        modalPageInfo.textContent = `Page ${pageNumber}`;
+        modal.classList.remove('hidden');
+      }
+    });
+  });
+
+  closeModal?.addEventListener('click', () => {
+    modal?.classList.add('hidden');
+  });
+
+  modal?.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.add('hidden');
+    }
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (!modal?.classList.contains('hidden')) {
+      if (e.key === 'Escape') {
+        modal.classList.add('hidden');
+      }
+    } else if (!bookView?.classList.contains('hidden') && !document.getElementById('book-reader')?.classList.contains('hidden')) {
+      if (e.key === 'ArrowLeft' && currentSpread > 1) {
+        currentSpread--;
+        updateBookPages();
+      } else if (e.key === 'ArrowRight' && currentSpread < totalSpreads) {
+        currentSpread++;
+        updateBookPages();
+      }
+    }
+  });
+
+  // Initialize
+  switchToBookView();
+</script>
+
+<style>
+  /* Book Container */
+  .book-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    perspective: 1500px;
+  }
+
+  /* Book Cover */
+  .book-cover {
+    position: relative;
+    width: 300px;
+    height: 400px;
+    margin: 0 auto;
+    transform-style: preserve-3d;
+    transition: transform 0.6s ease-in-out;
+    cursor: pointer;
+  }
+
+  .book-spine {
+    position: absolute;
+    left: -20px;
+    top: 0;
+    width: 20px;
+    height: 100%;
+    background: linear-gradient(to right, #1e293b, #334155);
+    border-radius: 4px 0 0 4px;
+    transform: rotateY(-90deg);
+    transform-origin: right center;
+  }
+
+  .book-front {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    border-radius: 8px;
+    box-shadow: 
+      0 10px 30px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border: 2px solid #475569;
+  }
+
+  .book-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .cover-image {
+    flex: 1;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .cover-overlay {
+    text-align: center;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 16px;
+    border-radius: 6px;
+    backdrop-filter: blur(10px);
+  }
+
+  /* Book Reader */
+  .book-reader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    max-width: 1000px;
+    margin: 0 auto;
+    perspective: 1200px;
+    transition: transform 0.6s ease-in-out;
+  }
+
+  .book-reader-container.page-turning {
+    transform: scale(0.98);
+  }
+
+  .book-page {
+    position: relative;
+    width: 400px;
+    height: 550px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    box-shadow: 
+      0 8px 25px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    transition: all 0.6s ease-in-out;
+  }
+
+  .left-page {
+    border-radius: 8px 0 0 8px;
+    border-right: none;
+    transform-origin: right center;
+  }
+
+  .right-page {
+    border-radius: 0 8px 8px 0;
+    border-left: none;
+    transform-origin: left center;
+  }
+
+  .book-binding {
+    width: 20px;
+    height: 550px;
+    background: linear-gradient(to right, #1e293b, #334155, #1e293b);
+    box-shadow: 
+      inset 2px 0 4px rgba(0, 0, 0, 0.3),
+      inset -2px 0 4px rgba(0, 0, 0, 0.3);
+    position: relative;
+  }
+
+  .book-binding::before {
+    content: '';
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 80%;
+    background: #475569;
+    border-radius: 1px;
+  }
+
+  .page-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .page-image {
+    flex: 1;
+    width: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .page-number {
+    position: absolute;
+    bottom: 15px;
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  .page-number.left {
+    left: 20px;
+  }
+
+  .page-number.right {
+    right: 20px;
+  }
+
+  /* Book Controls */
+  .book-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 30px auto;
+    max-width: 600px;
+    padding: 0 20px;
+  }
+
+  .control-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: rgba(51, 65, 85, 0.8);
+    color: white;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+  }
+
+  .control-btn:hover:not(:disabled) {
+    background: rgba(245, 158, 11, 0.9);
+    color: black;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+  }
+
+  .control-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .page-indicator {
+    padding: 8px 16px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border-radius: 20px;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+  }
+
+  /* Page Thumbnails */
+  .page-thumbnails {
+    margin-top: 40px;
+    padding: 20px;
+    background: rgba(30, 41, 59, 0.5);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+  }
+
+  .thumbnails-container {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 10px 0;
+    scrollbar-width: thin;
+    scrollbar-color: #475569 transparent;
+  }
+
+  .thumbnails-container::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .thumbnails-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .thumbnails-container::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 3px;
+  }
+
+  .thumbnail-btn {
+    position: relative;
+    flex-shrink: 0;
+    width: 60px;
+    height: 80px;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background: white;
+  }
+
+  .thumbnail-btn:hover {
+    border-color: #f59e0b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+  }
+
+  .thumbnail-btn.active {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+  }
+
+  .thumbnail-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .thumbnail-number {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 10px;
+    padding: 2px 4px;
+    border-radius: 2px;
+    font-weight: 500;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .book-reader-container {
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .book-page {
+      width: 300px;
+      height: 400px;
+    }
+
+    .left-page, .right-page {
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .book-binding {
+      display: none;
+    }
+
+    .book-controls {
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .control-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  /* Animation Classes */
+  .page-turn-left {
+    animation: turnPageLeft 0.6s ease-in-out;
+  }
+
+  .page-turn-right {
+    animation: turnPageRight 0.6s ease-in-out;
+  }
+
+  @keyframes turnPageLeft {
+    0% { transform: rotateY(0deg); }
+    50% { transform: rotateY(-90deg); }
+    100% { transform: rotateY(-180deg); }
+  }
+
+  @keyframes turnPageRight {
+    0% { transform: rotateY(0deg); }
+    50% { transform: rotateY(90deg); }
+    100% { transform: rotateY(180deg); }
+  }
+
+  /* Grid View Styles (unchanged) */
+  .pdf-page-card {
+    transition: all 0.3s ease;
+  }
+
+  .pdf-page-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.2);
+  }
+
+  /* Active button styles */
+  .active {
+    /* Handled by JavaScript */
+  }
+</style>
