@@ -29,10 +29,10 @@ import PDFViewer from '../components/PDFViewer.astro';
     
     <!-- PDF Documents Section -->
     <div id="pdf-section" class="mb-16">
-      <h3 class="text-2xl font-bold mb-8 text-white" data-aos="fade-up">Process Documentation</h3>
+      <h3 class="text-2xl font-bold mb-8 text-white" data-aos="fade-up" data-i18n="sections.processDocumentation">Process Documentation</h3>
       <div id="pdf-loading" class="text-center py-12">
         <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-amber-400"></div>
-        <p class="mt-4 text-white/70">Loading PDF documents...</p>
+        <p class="mt-4 text-white/70" data-i18n="sections.loadingPdfDocuments">Loading PDF documents...</p>
       </div>
       <div id="pdf-container"></div>
     </div>
@@ -41,6 +41,8 @@ import PDFViewer from '../components/PDFViewer.astro';
   </section>
 
   <script>
+    import { getPreferredLanguage, t } from '../i18n/utils';
+    
     // Wait for DOM to be fully loaded
     document.addEventListener('DOMContentLoaded', function() {
       console.log('DOM loaded, initializing page...');
@@ -54,10 +56,31 @@ import PDFViewer from '../components/PDFViewer.astro';
       document.body.style.height = 'auto';
       document.documentElement.style.height = 'auto';
       
-      // Update translations (simplified for now)
+      // Update translations
       function updateTranslations() {
         console.log('Updating translations...');
-        // For now, skip translations to focus on the book viewer
+        const currentLang = getPreferredLanguage();
+        
+        // Update all text with data-i18n
+        document.querySelectorAll('[data-i18n]').forEach((el) => {
+          const key = (el as HTMLElement).dataset.i18n;
+          if (key) {
+            const translation = t(key, currentLang);
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+              (el as HTMLInputElement).placeholder = translation;
+            } else {
+              el.textContent = translation;
+            }
+          }
+        });
+        
+        // Update placeholders with data-i18n-placeholder
+        document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+          const key = (el as HTMLElement).dataset.i18nPlaceholder;
+          if (key) {
+            (el as HTMLInputElement).placeholder = t(key, currentLang);
+          }
+        });
       }
     
     // Fetch and display PDFs
@@ -98,9 +121,9 @@ import PDFViewer from '../components/PDFViewer.astro';
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                   </svg>
                 </div>
-                <h4 class="text-xl font-bold mb-3">No PDF Documents</h4>
+                <h4 class="text-xl font-bold mb-3">${t('sections.noPdfDocuments', getPreferredLanguage())}</h4>
                 <p class="text-white/60 max-w-md mx-auto text-sm">
-                  PDF documents will appear here once uploaded.
+                  ${t('sections.noPdfDocumentsDescription', getPreferredLanguage())}
                 </p>
               </div>
             `;
@@ -114,7 +137,7 @@ import PDFViewer from '../components/PDFViewer.astro';
         if (pdfContainer) {
           pdfContainer.innerHTML = `
             <div class="text-center py-12 text-red-400">
-              <p>Failed to load PDF documents. Please try again later.</p>
+              <p>${t('sections.failedToLoadPdfs', getPreferredLanguage())}</p>
             </div>
           `;
         }
@@ -124,6 +147,8 @@ import PDFViewer from '../components/PDFViewer.astro';
     // Create full PDF viewer element
     function createFullPDFViewer(pdf: any) {
       console.log('Creating PDF viewer for:', pdf.filename);
+      
+      const currentLang = getPreferredLanguage();
       
       const container = document.createElement('div');
       container.className = 'book-viewer-container';
@@ -140,17 +165,17 @@ import PDFViewer from '../components/PDFViewer.astro';
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h3 class="text-2xl font-bold text-white mb-2">${pdf.filename}</h3>
-            <p class="text-white/70">${pdf.totalPages} pages • Process Bundle Documentation</p>
+            <p class="text-white/70">${pdf.totalPages} ${t('sections.pages', currentLang)} • ${t('sections.processBundleDocumentation', currentLang)}</p>
           </div>
           <div class="flex gap-3">
             <button id="book-view-btn" class="px-4 py-2 bg-amber-500 text-black font-semibold rounded-lg hover:bg-amber-400 transition-colors">
-              📖 Book View
+              ${t('sections.bookView', currentLang)}
             </button>
             <button id="grid-view-btn" class="px-4 py-2 bg-slate-700 text-white font-semibold rounded-lg hover:bg-slate-600 transition-colors">
-              🔲 Grid View
+              ${t('sections.gridView', currentLang)}
             </button>
             <a href="${pdf.url}" target="_blank" class="px-4 py-2 bg-slate-700 text-white font-semibold rounded-lg hover:bg-slate-600 transition-colors">
-              📥 Download PDF
+              ${t('sections.downloadPdf', currentLang)}
             </a>
           </div>
         </div>
@@ -174,10 +199,10 @@ import PDFViewer from '../components/PDFViewer.astro';
             </div>
             <div class="cover-overlay">
               <h4 class="text-white text-xl font-bold mb-2">${pdf.filename}</h4>
-              <p class="text-white/80 text-sm">Architecture Portfolio</p>
-              <p class="text-white/60 text-xs mt-2">${pdf.totalPages} Pages</p>
+              <p class="text-white/80 text-sm">${t('sections.architecturePortfolio', currentLang)}</p>
+              <p class="text-white/60 text-xs mt-2">${pdf.totalPages} ${t('sections.pages', currentLang)}</p>
               <button id="open-book-btn" class="mt-4 px-6 py-2 bg-amber-500 text-black font-semibold rounded-lg hover:bg-amber-400 transition-colors">
-                Open Book
+                ${t('sections.openBook', currentLang)}
               </button>
             </div>
           </div>
@@ -214,7 +239,7 @@ import PDFViewer from '../components/PDFViewer.astro';
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
             </svg>
-            <span>Previous</span>
+            <span>${t('sections.previous', currentLang)}</span>
           </button>
           
           <div class="page-indicator">
@@ -222,7 +247,7 @@ import PDFViewer from '../components/PDFViewer.astro';
           </div>
           
           <button id="next-page-btn" class="control-btn next-btn">
-            <span>Next</span>
+            <span>${t('sections.next', currentLang)}</span>
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
             </svg>
@@ -386,6 +411,7 @@ import PDFViewer from '../components/PDFViewer.astro';
     // Create simple PDF card element
     function createSimplePDFCard(pdf: any) {
       const sizeInMB = (pdf.size / (1024 * 1024)).toFixed(1);
+      const currentLang = getPreferredLanguage();
       
       const container = document.createElement('div');
       container.className = 'bg-slate-800/50 backdrop-blur-sm border border-white/10 rounded-xl p-6';
@@ -404,7 +430,7 @@ import PDFViewer from '../components/PDFViewer.astro';
           <div class="flex-shrink-0">
             <a href="${pdf.url}" target="_blank" 
                class="px-6 py-3 bg-amber-500 text-black font-semibold rounded-lg hover:bg-amber-400 transition-colors">
-              Download
+              ${t('sections.downloadPdf', currentLang).replace('📥 ', '')}
             </a>
           </div>
         </div>
@@ -810,17 +836,17 @@ import PDFViewer from '../components/PDFViewer.astro';
   <!-- Add some extra content to ensure scrolling works -->
   <section class="py-24 px-6 bg-slate-900/50">
     <div class="max-w-7xl mx-auto text-center">
-      <h3 class="text-2xl font-bold mb-8 text-white">About This Process Bundle</h3>
+      <h3 class="text-2xl font-bold mb-8 text-white" data-i18n="sections.aboutProcessBundle">About This Process Bundle</h3>
       <div class="grid md:grid-cols-2 gap-8 text-left">
         <div class="bg-slate-800/30 p-6 rounded-xl">
-          <h4 class="text-xl font-semibold mb-4 text-amber-400">Design Development</h4>
-          <p class="text-white/70 leading-relaxed">
+          <h4 class="text-xl font-semibold mb-4 text-amber-400" data-i18n="sections.designDevelopment">Design Development</h4>
+          <p class="text-white/70 leading-relaxed" data-i18n="sections.designDevelopmentDescription">
             This comprehensive process bundle documents our complete design journey from initial concept sketches to final architectural presentation. Each page represents a crucial step in our design methodology.
           </p>
         </div>
         <div class="bg-slate-800/30 p-6 rounded-xl">
-          <h4 class="text-xl font-semibold mb-4 text-amber-400">Documentation Process</h4>
-          <p class="text-white/70 leading-relaxed">
+          <h4 class="text-xl font-semibold mb-4 text-amber-400" data-i18n="sections.documentationProcess">Documentation Process</h4>
+          <p class="text-white/70 leading-relaxed" data-i18n="sections.documentationProcessDescription">
             The documentation includes technical drawings, conceptual diagrams, material studies, and presentation layouts that showcase our architectural thinking and design evolution.
           </p>
         </div>
