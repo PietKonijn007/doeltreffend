@@ -11,8 +11,8 @@ export const translations = {
     },
     // Home page
     home: {
-      title: 'Doel - Scharnierpunt',
-      subtitle: 'KU Leuven Bachelor Ontwerp - Architecture Portfolio',
+      title: 'Groep 5 - Pissebedden',
+      subtitle: 'Doel - Scharnierpunt | KU Leuven Bachelor Ontwerp',
       exploreButton: 'Explore Sections',
       projectSectionsTitle: 'Project Sections',
       projectSectionsDescription: 'Navigate through our comprehensive architecture portfolio, organized into four distinct sections',
@@ -140,8 +140,8 @@ export const translations = {
     },
     // Home pagina
     home: {
-      title: 'Doel - Scharnierpunt',
-      subtitle: 'KU Leuven Bachelor Ontwerp - Architectuur Portfolio',
+      title: 'Groep 5 - Pissebedden',
+      subtitle: 'Doel - Scharnierpunt | KU Leuven Bachelor Ontwerp',
       exploreButton: 'Secties Verkennen',
       projectSectionsTitle: 'Project Secties',
       projectSectionsDescription: 'Navigeer door ons uitgebreid architectuurportfolio, georganiseerd in vier verschillende secties',
@@ -268,8 +268,8 @@ export const translations = {
     },
     // 홈 페이지
     home: {
-      title: 'Doel - Scharnierpunt',
-      subtitle: 'KU Leuven 학사 디자인 - 건축 포트폴리오',
+      title: 'Groep 5 - Pissebedden',
+      subtitle: 'Doel - Scharnierpunt | KU Leuven Bachelor Ontwerp',
       exploreButton: '섹션 탐색',
       projectSectionsTitle: '프로젝트 섹션',
       projectSectionsDescription: '네 개의 뚜렷한 섹션으로 구성된 포괄적인 건축 포트폴리오를 탐색하세요',

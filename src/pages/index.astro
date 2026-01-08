@@ -41,9 +41,23 @@ const sections = [
   
   <!-- Hero Section -->
   <Hero 
-    title="Doel - Scharnierpunt"
-    subtitle="KU Leuven Bachelor Ontwerp - Architecture Portfolio"
-  />
+    title="Groep 5 - Pissebedden"
+    subtitle="Doel - Scharnierpunt | KU Leuven Bachelor Ontwerp"
+  >
+    <!-- Fun Pissebedden Elements -->
+    <div class="mt-8 flex justify-center items-center gap-4" data-aos="fade-up" data-aos-delay="600">
+      <div class="flex gap-2">
+        <!-- Animated Pissebedden -->
+        <div class="pissebed pissebed-1">🪲</div>
+        <div class="pissebed pissebed-2">🪲</div>
+        <div class="pissebed pissebed-3">🪲</div>
+      </div>
+      <span class="text-amber-400 font-semibold text-lg mx-4">•</span>
+      <div class="text-white/80 text-sm font-medium">
+        Architecture Portfolio
+      </div>
+    </div>
+  </Hero>
   
   <!-- Project Introduction - First to be seen -->
   <section id="project-intro" class="py-16 px-6 max-w-7xl mx-auto">
@@ -263,3 +277,46 @@ const sections = [
   // Listen for language changes
   window.addEventListener('languagechange', updateTranslations);
 </script>
+
+<style>
+  /* Pissebedden animations */
+  .pissebed {
+    display: inline-block;
+    font-size: 1.5rem;
+    animation: crawl 3s ease-in-out infinite;
+    transform-origin: center;
+  }
+  
+  .pissebed-1 {
+    animation-delay: 0s;
+  }
+  
+  .pissebed-2 {
+    animation-delay: 0.5s;
+  }
+  
+  .pissebed-3 {
+    animation-delay: 1s;
+  }
+  
+  @keyframes crawl {
+    0%, 100% {
+      transform: translateX(0) rotate(0deg);
+    }
+    25% {
+      transform: translateX(5px) rotate(-5deg);
+    }
+    50% {
+      transform: translateX(-3px) rotate(3deg);
+    }
+    75% {
+      transform: translateX(8px) rotate(-3deg);
+    }
+  }
+  
+  /* Add some hover effects */
+  .pissebed:hover {
+    animation-duration: 0.5s;
+    transform: scale(1.2);
+  }
+</style>
