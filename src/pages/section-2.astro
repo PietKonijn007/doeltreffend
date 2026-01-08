@@ -20,16 +20,29 @@ import PDFViewer from '../components/PDFViewer.astro';
   
   <!-- Content Section -->
   <section class="py-24 px-6 max-w-7xl mx-auto">
-    <div class="mb-16" data-aos="fade-up">
-      <h2 class="text-3xl md:text-4xl font-bold mb-4" data-i18n="sections.overview">Section Overview</h2>
-      <p class="text-white/70 text-lg max-w-3xl" data-i18n="sections.section2Description">
-        Welcome to Section 2 of our architecture portfolio. This section contains the complete process bundle showing our design development from concept to final presentation.
-      </p>
+    <!-- About Process Bundle Section -->
+    <div class="py-12 mb-16">
+      <div class="max-w-7xl mx-auto text-center">
+        <h3 class="text-2xl font-bold mb-8 text-white" data-i18n="sections.aboutProcessBundle">About This Process Bundle</h3>
+        <div class="grid md:grid-cols-2 gap-8 text-left">
+          <div class="bg-slate-800/30 p-6 rounded-xl">
+            <h4 class="text-xl font-semibold mb-4 text-amber-400" data-i18n="sections.designDevelopment">Design Development</h4>
+            <p class="text-white/70 leading-relaxed" data-i18n="sections.designDevelopmentDescription">
+              This comprehensive process bundle documents our complete design journey from initial concept sketches to final architectural presentation. Each page represents a crucial step in our design methodology.
+            </p>
+          </div>
+          <div class="bg-slate-800/30 p-6 rounded-xl">
+            <h4 class="text-xl font-semibold mb-4 text-amber-400" data-i18n="sections.documentationProcess">Documentation Process</h4>
+            <p class="text-white/70 leading-relaxed" data-i18n="sections.documentationProcessDescription">
+              The documentation includes technical drawings, conceptual diagrams, material studies, and presentation layouts that showcase our architectural thinking and design evolution.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
     
     <!-- PDF Documents Section -->
     <div id="pdf-section" class="mb-16">
-      <h3 class="text-2xl font-bold mb-8 text-white" data-aos="fade-up" data-i18n="sections.processDocumentation">Process Documentation</h3>
       <div id="pdf-loading" class="text-center py-12">
         <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-amber-400"></div>
         <p class="mt-4 text-white/70" data-i18n="sections.loadingPdfDocuments">Loading PDF documents...</p>
@@ -106,9 +119,8 @@ import PDFViewer from '../components/PDFViewer.astro';
                 console.log('Created PDF element:', pdfElement);
                 pdfContainer.appendChild(pdfElement);
               } else {
-                // Create simple PDF download card
-                const pdfElement = createSimplePDFCard(pdf);
-                pdfContainer.appendChild(pdfElement);
+                // Skip unprocessed PDFs - they should all be processed
+                console.warn('PDF not processed, skipping:', pdf.filename);
               }
             }
           });
@@ -174,9 +186,6 @@ import PDFViewer from '../components/PDFViewer.astro';
             <button id="grid-view-btn" class="px-4 py-2 bg-slate-700 text-white font-semibold rounded-lg hover:bg-slate-600 transition-colors">
               ${t('sections.gridView', currentLang)}
             </button>
-            <a href="${pdf.url}" target="_blank" class="px-4 py-2 bg-slate-700 text-white font-semibold rounded-lg hover:bg-slate-600 transition-colors">
-              ${t('sections.downloadPdf', currentLang)}
-            </a>
           </div>
         </div>
       `;
@@ -406,37 +415,6 @@ import PDFViewer from '../components/PDFViewer.astro';
         `;
         document.head.appendChild(style);
       }
-    }
-    
-    // Create simple PDF card element
-    function createSimplePDFCard(pdf: any) {
-      const sizeInMB = (pdf.size / (1024 * 1024)).toFixed(1);
-      const currentLang = getPreferredLanguage();
-      
-      const container = document.createElement('div');
-      container.className = 'bg-slate-800/50 backdrop-blur-sm border border-white/10 rounded-xl p-6';
-      container.innerHTML = `
-        <div class="flex items-center gap-4">
-          <div class="flex-shrink-0">
-            <svg class="w-12 h-12 text-red-400" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
-            </svg>
-          </div>
-          <div class="flex-grow">
-            <h3 class="text-xl font-bold text-white mb-1">${pdf.filename}</h3>
-            <p class="text-white/70 text-sm">PDF Document • ${sizeInMB} MB</p>
-            <p class="text-white/60 text-xs mt-1">Click to download and view the complete process bundle</p>
-          </div>
-          <div class="flex-shrink-0">
-            <a href="${pdf.url}" target="_blank" 
-               class="px-6 py-3 bg-amber-500 text-black font-semibold rounded-lg hover:bg-amber-400 transition-colors">
-              ${t('sections.downloadPdf', currentLang).replace('📥 ', '')}
-            </a>
-          </div>
-        </div>
-      `;
-      
-      return container;
     }
     
     // Fetch images from API
@@ -830,27 +808,6 @@ import PDFViewer from '../components/PDFViewer.astro';
       <a href="/section-3" class="text-white/70 hover:text-amber-400 transition-colors">
         <span data-i18n="nav.section3">Photo Map</span> →
       </a>
-    </div>
-  </section>
-
-  <!-- Add some extra content to ensure scrolling works -->
-  <section class="py-24 px-6 bg-slate-900/50">
-    <div class="max-w-7xl mx-auto text-center">
-      <h3 class="text-2xl font-bold mb-8 text-white" data-i18n="sections.aboutProcessBundle">About This Process Bundle</h3>
-      <div class="grid md:grid-cols-2 gap-8 text-left">
-        <div class="bg-slate-800/30 p-6 rounded-xl">
-          <h4 class="text-xl font-semibold mb-4 text-amber-400" data-i18n="sections.designDevelopment">Design Development</h4>
-          <p class="text-white/70 leading-relaxed" data-i18n="sections.designDevelopmentDescription">
-            This comprehensive process bundle documents our complete design journey from initial concept sketches to final architectural presentation. Each page represents a crucial step in our design methodology.
-          </p>
-        </div>
-        <div class="bg-slate-800/30 p-6 rounded-xl">
-          <h4 class="text-xl font-semibold mb-4 text-amber-400" data-i18n="sections.documentationProcess">Documentation Process</h4>
-          <p class="text-white/70 leading-relaxed" data-i18n="sections.documentationProcessDescription">
-            The documentation includes technical drawings, conceptual diagrams, material studies, and presentation layouts that showcase our architectural thinking and design evolution.
-          </p>
-        </div>
-      </div>
     </div>
   </section>
 
