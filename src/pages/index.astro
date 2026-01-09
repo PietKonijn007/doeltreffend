@@ -9,6 +9,8 @@ const sections = [
     number: 1,
     title: 'Nodes',
     description: 'Pictures of nodes for structural analysis and strength',
+    titleKey: 'nav.section1',
+    descriptionKey: 'sections.section1Description',
     link: '/section-1',
     image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800&q=80' // Fallback
   },
@@ -16,6 +18,8 @@ const sections = [
     number: 2,
     title: 'Process Bundle',
     description: 'The bundle that shows the full process of the design presented',
+    titleKey: 'nav.section2',
+    descriptionKey: 'sections.section2Description',
     link: '/section-2',
     image: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&q=80' // Fallback
   },
@@ -23,6 +27,8 @@ const sections = [
     number: 3,
     title: 'Photo Map',
     description: 'Explore our photo map',
+    titleKey: 'nav.section3',
+    descriptionKey: 'sections.section3Description',
     link: '/section-3',
     image: 'https://images.unsplash.com/photo-1479839672679-a46483c0e7c8?w=800&q=80' // Fallback
   },
@@ -30,6 +36,8 @@ const sections = [
     number: 4,
     title: 'Photos',
     description: 'View our photo collection',
+    titleKey: 'nav.section4',
+    descriptionKey: 'sections.section4Description',
     link: '/section-4',
     image: 'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?w=800&q=80' // Fallback
   }
@@ -192,6 +200,8 @@ const sections = [
             image={section.image}
             title={section.title}
             description={section.description}
+            titleKey={section.titleKey}
+            descriptionKey={section.descriptionKey}
             link={section.link}
           />
         </div>

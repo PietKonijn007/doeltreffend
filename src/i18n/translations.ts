@@ -2,10 +2,11 @@ export const translations = {
   en: {
     // Navigation
     nav: {
+      logo: 'Doel - Scharnierpunt',
       home: 'Home',
       section1: 'Nodes',
       section2: 'Process Bundle',
-      section3: 'Postal Card',
+      section3: 'Photo Map',
       section4: 'Photos',
       contact: 'Contact',
     },
@@ -86,7 +87,7 @@ export const translations = {
       overview: 'Overview',
       section1Description: 'Pictures of nodes for structural analysis and strength.',
       section2Description: 'Welcome to Section 2 of our architecture portfolio. This section contains the complete process bundle showing our design development from concept to final presentation.',
-      section3Description: 'Explore our postal card.',
+      section3Description: 'Explore our photo map.',
       section4Description: 'View our photo collection.',
       backToHome: '← Back to Home',
       loading: 'Loading images...',
@@ -132,10 +133,11 @@ export const translations = {
   nl: {
     // Navigatie
     nav: {
+      logo: 'Doel - Scharnierpunt',
       home: 'Home',
       section1: 'Knopen',
       section2: 'Proces Bundel',
-      section3: 'Postkaart',
+      section3: 'Foto Kaart',
       section4: "Foto's",
       contact: 'Contact',
     },
@@ -216,7 +218,7 @@ export const translations = {
       overview: 'Overzicht',
       section1Description: 'Afbeeldingen van knopen voor structurele analyse en sterkte.',
       section2Description: 'Welkom bij Sectie 2 van ons architectuurportfolio. Deze sectie bevat de complete procesbundel die onze ontwerpontwikkeling toont van concept tot eindpresentatie.',
-      section3Description: 'Verken onze postkaart.',
+      section3Description: 'Verken onze foto kaart.',
       section4Description: 'Bekijk onze fotocollectie.',
       backToHome: '← Terug naar Home',
       loading: 'Afbeeldingen laden...',
@@ -261,10 +263,11 @@ export const translations = {
   ko: {
     // 내비게이션
     nav: {
+      logo: 'Doel - Scharnierpunt',
       home: '홈',
       section1: '노드',
       section2: '프로세스 번들',
-      section3: '우편엽서',
+      section3: '사진 지도',
       section4: '사진',
       contact: '문의',
     },
@@ -345,7 +348,7 @@ export const translations = {
       overview: '개요',
       section1Description: '구조 분석 및 강도를 위한 노드의 사진.',
       section2Description: '건축 포트폴리오의 섹션 2에 오신 것을 환영합니다. 이 섹션에는 개념부터 최종 발표까지 디자인 개발을 보여주는 완전한 프로세스 번들이 포함되어 있습니다.',
-      section3Description: '우편엽서를 탐색하세요.',
+      section3Description: '사진 지도를 탐색하세요.',
       section4Description: '사진 컬렉션을 확인하세요.',
       backToHome: '← 홈으로 돌아가기',
       loading: '이미지 로딩 중...',
