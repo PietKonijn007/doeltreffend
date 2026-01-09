@@ -58,7 +58,8 @@
         if (lang) {
           setLanguage(lang as 'en' | 'nl' | 'ko');
           updateButtons();
-          window.location.reload(); // Reload to apply translations
+          // Don't reload - let the event system handle it
+          // window.location.reload(); 
         }
       });
     });

@@ -258,12 +258,15 @@ const sections = [
   // Update all translations on the page
   function updateTranslations() {
     const currentLang = getPreferredLanguage();
+    console.log('Updating translations for language:', currentLang);
     
     // Update text content for all elements with data-i18n
     document.querySelectorAll('[data-i18n]').forEach((el) => {
       const key = (el as HTMLElement).dataset.i18n;
       if (key) {
-        el.textContent = t(key, currentLang);
+        const translatedText = t(key, currentLang);
+        console.log(`Translating ${key} to: ${translatedText}`);
+        el.textContent = translatedText;
       }
     });
     
@@ -275,6 +278,8 @@ const sections = [
     
     // Update ProjectCard titles and descriptions specifically
     const projectCards = document.querySelectorAll('.group.relative');
+    console.log('Found project cards:', projectCards.length);
+    
     projectCards.forEach((card, index) => {
       const titleElement = card.querySelector('h3[data-i18n]');
       const descriptionElement = card.querySelector('p[data-i18n]');
@@ -282,24 +287,36 @@ const sections = [
       if (titleElement) {
         const titleKey = (titleElement as HTMLElement).dataset.i18n;
         if (titleKey) {
-          titleElement.textContent = t(titleKey, currentLang);
+          const translatedTitle = t(titleKey, currentLang);
+          console.log(`Card ${index} title: ${titleKey} -> ${translatedTitle}`);
+          titleElement.textContent = translatedTitle;
         }
       }
       
       if (descriptionElement) {
         const descKey = (descriptionElement as HTMLElement).dataset.i18n;
         if (descKey) {
-          descriptionElement.textContent = t(descKey, currentLang);
+          const translatedDesc = t(descKey, currentLang);
+          console.log(`Card ${index} description: ${descKey} -> ${translatedDesc}`);
+          descriptionElement.textContent = translatedDesc;
         }
       }
     });
   }
   
-  // Initialize translations
-  updateTranslations();
+  // Initialize when DOM is ready
+  function initialize() {
+    console.log('Initializing translations...');
+    updateTranslations();
+    loadSectionImages();
+  }
   
-  // Load images from S3
-  loadSectionImages();
+  // Wait for DOM to be ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+  } else {
+    initialize();
+  }
   
   // Listen for language changes
   window.addEventListener('languagechange', updateTranslations);
