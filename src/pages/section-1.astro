@@ -22,15 +22,15 @@ const nodes = [
   
   <!-- Hero Section -->
   <Hero 
-    title="Nodes"
-    subtitle="Nodes for structural analysis and strength"
+    title=""
+    subtitle=""
     height="large"
   />
   
   <!-- Nodes Grid Section -->
   <section class="py-24 px-6 max-w-7xl mx-auto bg-stone-100 rounded-3xl">
     <div class="mb-16 text-center" data-aos="fade-up">
-      <h2 class="text-3xl md:text-4xl font-bold mb-2 text-stone-800 uppercase tracking-wider">Structural Details</h2>
+      <h2 class="text-3xl md:text-4xl font-bold mb-2 text-stone-800 uppercase tracking-wider" data-i18n="sections.structuralDetails">Structural Details</h2>
     </div>
     
     <!-- Loading state -->
@@ -184,7 +184,7 @@ const nodes = [
         }
       });
       
-      // Update Hero
+      // Update Hero title and subtitle
       const heroTitle = document.querySelector('.hero-section h1');
       const heroSubtitle = document.querySelector('.hero-section p');
       if (heroTitle) heroTitle.textContent = t('sections.section1Title', currentLang);

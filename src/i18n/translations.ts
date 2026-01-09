@@ -66,6 +66,7 @@ export const translations = {
     sections: {
       section1Title: 'Nodes',
       section1Subtitle: 'Nodes for structural analysis and strength',
+      structuralDetails: 'Structural Details',
       // Node titles
       node1: 'Hinge Point',
       node2: 'Foundation Foot',
@@ -195,6 +196,7 @@ export const translations = {
     sections: {
       section1Title: 'Knopen',
       section1Subtitle: 'Knopen voor structurele analyse en sterkte',
+      structuralDetails: 'Structurele Details',
       // Knoop titels
       node1: 'Scharnierpunt',
       node2: 'Funderingsvoet',
@@ -323,6 +325,7 @@ export const translations = {
     sections: {
       section1Title: '노드',
       section1Subtitle: '구조 분석 및 강도를 위한 노드',
+      structuralDetails: '구조적 세부사항',
       // 노드 제목
       node1: '힌지 포인트',
       node2: '기초 받침',
